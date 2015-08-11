@@ -1,10 +1,10 @@
 #############################################################################
-# Name: Elizabeth Rentschlar                                       
-# Purpose:                                                         
-# Created: 7/15/15                                                  
-# Copyright: (c) City of Bryan                                             
-# ArcGIS Version: 10.2.2                                             
-# Python Version: 2.7                                               
+# Name: Elizabeth Rentschlar    
+# Purpose: Sewer Maintenance based on Risk Prioritization  
+# Created: 8/18/15 
+# Copyright: (c) City of Bryan  
+# ArcGIS Version: 10.2.2 
+# Python Version: 2.7 
 #############################################################################
 # ---------------------------------------------------------------------------
 # ToDelete.py
