@@ -35,64 +35,16 @@ Sewer_SSO_STOP_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO_S
 
 
 
-# Process: Copy Features
+# Process: Copy Features (1)
 arcpy.CopyFeatures_management(SS_Lines, Sewer_2_shp, "", "0", "0", "0")
 
-# Process: Add Field
-arcpy.AddField_management(Sewer_2_shp, "To_Water", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Add Field (2)
-arcpy.AddField_management(Sewer_2_shp, "To_Road", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Add Field (3)
-arcpy.AddField_management(Sewer_2_shp, "To_Public", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Near
-arcpy.Near_analysis(Sewer_2_shp, "Streams", "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
-
-# Process: Calculate Field
-arcpy.CalculateField_management(Sewer_2_shp, "To_Water", "!NEAR_DIST!", "PYTHON", "")
-
-# Process: Near (2)
-arcpy.Near_analysis(Sewer_2_shp, "'MAJOR ROADS'", "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
-
-# Process: Calculate Field (2)
-arcpy.CalculateField_management(Sewer_2_shp, "To_Road", "!NEAR_DIST!", "PYTHON", "")
-
-# Process: Select
-arcpy.Select_analysis(BCAD_PARCELS, parcels_F_select_shp, "state_cd = 'F1' OR state_cd = 'F2'")
-
-# Process: Near (3)
-arcpy.Near_analysis(Sewer_2_shp, "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\parcels_F_select.shp", "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
-
-# Process: Calculate Field (3)
-arcpy.CalculateField_management(Sewer_2_shp, "To_Public", "!NEAR_DIST!", "PYTHON", "")
-
-# Process: Delete Field
-arcpy.DeleteField_management(Sewer_2_shp, "NEAR_FID;NEAR_DIST")
-
-# Process: Add Field (4)
-arcpy.AddField_management(Sewer_2_shp, "Con_Size", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Add Field (5)
-arcpy.AddField_management(Sewer_2_shp, "Con_Water", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Add Field (6)
-arcpy.AddField_management(Sewer_2_shp, "Con_Road", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Add Field (7)
-arcpy.AddField_management(Sewer_2_shp, "Con_Pub", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Add Field (8)
-arcpy.AddField_management(Sewer_2_shp, "Consequenc", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
-
-# Process: Select (2)
+# Process: Select (1)
 arcpy.Select_analysis(All_WO, WO_STOP_1, "\"CATCODE\" = 'STOP'")
 
-# Process: Snap
+# Process: Snap (1)
 arcpy.Snap_edit(WO_STOP_1, "'SS Lines' EDGE '50 Feet';'SS Lines' EDGE '100 Feet';'SS Lines' EDGE '150 Feet';'SS Lines' EDGE '200 Feet';'SS Lines' EDGE '250 Feet';'SS Lines' EDGE '300 Feet';'SS Lines' EDGE '350 Feet';'SS Lines' EDGE '400 Feet'")
 
-# Process: Select (3)
+# Process: Select (2)
 arcpy.Select_analysis(All_WO, WO_SSO_1, "\"CATCODE\" = 'SSO'")
 
 # Process: Snap (2)
@@ -101,40 +53,99 @@ arcpy.Snap_edit(WO_SSO_1, "'SS Lines' EDGE '50 Feet';'SS Lines' EDGE '100 Feet';
 # Process: Buffer
 #arcpy.Buffer_analysis("", Sewer_5ft_Buffer_shp, "5 Feet", "FULL", "ROUND", "NONE", "")
 
-# Process: Spatial Join
+# Process: Spatial Join (1)
 arcpy.SpatialJoin_analysis(Sewer_2_shp, WO_SSO_1, Sewer_SSO_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL", "MAINSIZE \"MAINSIZE\" true true false 10 Text 0 0 ,First,#,Sewer_2,MAINSIZE,-1,-1;PLAT_ID \"PLAT_ID\" true true false 15 Text 0 0 ,First,#,Sewer_2,PLAT_ID,-1,-1;CLASS \"CLASS\" true true false 25 Text 0 0 ,First,#,Sewer_2,CLASS,-1,-1;MAT_TYPE \"MAT_TYPE\" true true false 15 Text 0 0 ,First,#,Sewer_2,MAT_TYPE,-1,-1;Flow_Out \"Flow_Out\" true true false 17 Double 3 16 ,First,#,Sewer_2,Flow_Out,-1,-1;Flow_In \"Flow_In\" true true false 17 Double 3 16 ,First,#,Sewer_2,Flow_In,-1,-1;DROP_INVER \"DROP_INVER\" true true false 19 Double 11 18 ,First,#,Sewer_2,DROP_INVER,-1,-1;MAIN_TYPE \"MAIN_TYPE\" true true false 12 Text 0 0 ,First,#,Sewer_2,MAIN_TYPE,-1,-1;LENGTH \"LENGTH\" true true false 12 Double 2 11 ,First,#,Sewer_2,LENGTH,-1,-1;YEAR \"YEAR\" true true false 10 Double 0 10 ,First,#,Sewer_2,YEAR,-1,-1;BIN_NO \"BIN_NO\" true true false 25 Text 0 0 ,First,#,Sewer_2,BIN_NO,-1,-1;Project_NO \"Project_NO\" true true false 20 Text 0 0 ,First,#,Sewer_2,Project_NO,-1,-1;Calc_Leng \"Calc_Leng\" true true false 14 Double 2 13 ,First,#,Sewer_2,Calc_Leng,-1,-1;Maintenanc \"Maintenanc\" true true false 20 Text 0 0 ,First,#,Sewer_2,Maintenanc,-1,-1;Maint_Year \"Maint_Year\" true true false 10 Double 0 10 ,First,#,Sewer_2,Maint_Year,-1,-1;Maint_Mat \"Maint_Mat\" true true false 10 Text 0 0 ,First,#,Sewer_2,Maint_Mat,-1,-1;Maint_Type \"Maint_Type\" true true false 10 Text 0 0 ,First,#,Sewer_2,Maint_Type,-1,-1;Maint_Stat \"Maint_Stat\" true true false 20 Text 0 0 ,First,#,Sewer_2,Maint_Stat,-1,-1;Report \"Report\" true true false 175 Text 0 0 ,First,#,Sewer_2,Report,-1,-1;CCTV_File \"CCTV_File\" true true false 50 Text 0 0 ,First,#,Sewer_2,CCTV_File,-1,-1;CCTV_Date \"CCTV_Date\" true true false 8 Date 0 0 ,First,#,Sewer_2,CCTV_Date,-1,-1;CCTV_Stat \"CCTV_Stat\" true true false 50 Text 0 0 ,First,#,Sewer_2,CCTV_Stat,-1,-1;TV_Length \"TV_Length\" true true false 11 Double 2 10 ,First,#,Sewer_2,TV_Length,-1,-1;Comments \"Comments\" true true false 50 Text 0 0 ,First,#,Sewer_2,Comments,-1,-1;TECH \"TECH\" true true false 5 Text 0 0 ,First,#,Sewer_2,TECH,-1,-1;Data_Sourc \"Data_Sourc\" true true false 50 Text 0 0 ,First,#,Sewer_2,Data_Sourc,-1,-1;Entry_Date \"Entry_Date\" true true false 8 Date 0 0 ,First,#,Sewer_2,Entry_Date,-1,-1;WRNTY_DATE \"WRNTY_DATE\" true true false 8 Date 0 0 ,First,#,Sewer_2,WRNTY_DATE,-1,-1;Shape_len \"Shape_len\" true true false 19 Double 0 0 ,First,#,Sewer_2,Shape_len,-1,-1;To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_Water,-1,-1;To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_Road,-1,-1;To_Public \"To_Public\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_Public,-1,-1;Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Size,-1,-1;Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Water,-1,-1;Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Road,-1,-1;Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Pub,-1,-1;Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,Sewer_2,Consequenc,-1,-1;SSO_Count \"SSO_Count\" true true false 10 Double 0 10 ,Count,#,WO_SSO_1,OBJECTID,-1,-1", "INTERSECT", "", "")
 
 # Process: Spatial Join (2)
-arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_STOP_1, Sewer_SSO_STOP_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL", "Join_Count \"Join_Count\" true true false 0 Long 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Join_Count,-1,-1;TARGET_FID \"TARGET_FID\" true true false 0 Long 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,TARGET_FID,-1,-1;MAINSIZE \"MAINSIZE\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,MAINSIZE,-1,-1;PLAT_ID \"PLAT_ID\" true true false 15 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,PLAT_ID,-1,-1;CLASS \"CLASS\" true true false 25 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CLASS,-1,-1;MAT_TYPE \"MAT_TYPE\" true true false 15 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,MAT_TYPE,-1,-1;Flow_Out \"Flow_Out\" true true false 17 Double 3 16 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Flow_Out,-1,-1;Flow_In \"Flow_In\" true true false 17 Double 3 16 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Flow_In,-1,-1;DROP_INVER \"DROP_INVER\" true true false 19 Double 11 18 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,DROP_INVER,-1,-1;MAIN_TYPE \"MAIN_TYPE\" true true false 12 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,MAIN_TYPE,-1,-1;LENGTH \"LENGTH\" true true false 12 Double 2 11 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,LENGTH,-1,-1;YEAR \"YEAR\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,YEAR,-1,-1;BIN_NO \"BIN_NO\" true true false 25 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,BIN_NO,-1,-1;Project_NO \"Project_NO\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Project_NO,-1,-1;Calc_Leng \"Calc_Leng\" true true false 14 Double 2 13 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Calc_Leng,-1,-1;Maintenanc \"Maintenanc\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maintenanc,-1,-1;Maint_Year \"Maint_Year\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Year,-1,-1;Maint_Mat \"Maint_Mat\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Mat,-1,-1;Maint_Type \"Maint_Type\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Type,-1,-1;Maint_Stat \"Maint_Stat\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Stat,-1,-1;Report \"Report\" true true false 175 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Report,-1,-1;CCTV_File \"CCTV_File\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CCTV_File,-1,-1;CCTV_Date \"CCTV_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CCTV_Date,-1,-1;CCTV_Stat \"CCTV_Stat\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CCTV_Stat,-1,-1;TV_Length \"TV_Length\" true true false 11 Double 2 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,TV_Length,-1,-1;Comments \"Comments\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Comments,-1,-1;TECH \"TECH\" true true false 5 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,TECH,-1,-1;Data_Sourc \"Data_Sourc\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Data_Sourc,-1,-1;Entry_Date \"Entry_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Entry_Date,-1,-1;WRNTY_DATE \"WRNTY_DATE\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,WRNTY_DATE,-1,-1;Shape_len \"Shape_len\" true true false 19 Double 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Shape_len,-1,-1;To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,To_Water,-1,-1;To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,To_Road,-1,-1;To_Public \"To_Public\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,To_Public,-1,-1;Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Size,-1,-1;Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Water,-1,-1;Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Road,-1,-1;Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Pub,-1,-1;Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Consequenc,-1,-1;SSO_Count \"SSO_Count\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,SSO_Count,-1,-1;STOP_Count \"STOP_Count\" true true false 10 Double 0 10 ,Count,#,WO_STOP_1,OBJECTID,-1,-1", "INTERSECT", "", "")
+arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_STOP_1, Sewer_SSO_STOP_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL", "Join_Count \"Join_Count\" true true false 0 Long 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Join_Count,-1,-1;TARGET_FID \"TARGET_FID\" true true false 0 Long 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,TARGET_FID,-1,-1;MAINSIZE \"MAINSIZE\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,MAINSIZE,-1,-1;PLAT_ID \"PLAT_ID\" true true false 15 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,PLAT_ID,-1,-1;CLASS \"CLASS\" true true false 25 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CLASS,-1,-1;MAT_TYPE \"MAT_TYPE\" true true false 15 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,MAT_TYPE,-1,-1;Flow_Out \"Flow_Out\" true true false 17 Double 3 16 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Flow_Out,-1,-1;Flow_In \"Flow_In\" true true false 17 Double 3 16 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Flow_In,-1,-1;DROP_INVER \"DROP_INVER\" true true false 19 Double 11 18 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,DROP_INVER,-1,-1;MAIN_TYPE \"MAIN_TYPE\" true true false 12 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,MAIN_TYPE,-1,-1;LENGTH \"LENGTH\" true true false 12 Double 2 11 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,LENGTH,-1,-1;YEAR \"YEAR\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,YEAR,-1,-1;BIN_NO \"BIN_NO\" true true false 25 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,BIN_NO,-1,-1;Project_NO \"Project_NO\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Project_NO,-1,-1;Calc_Leng \"Calc_Leng\" true true false 14 Double 2 13 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Calc_Leng,-1,-1;Maintenanc \"Maintenanc\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maintenanc,-1,-1;Maint_Year \"Maint_Year\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Year,-1,-1;Maint_Mat \"Maint_Mat\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Mat,-1,-1;Maint_Type \"Maint_Type\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Type,-1,-1;Maint_Stat \"Maint_Stat\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Maint_Stat,-1,-1;Report \"Report\" true true false 175 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Report,-1,-1;CCTV_File \"CCTV_File\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CCTV_File,-1,-1;CCTV_Date \"CCTV_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CCTV_Date,-1,-1;CCTV_Stat \"CCTV_Stat\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,CCTV_Stat,-1,-1;TV_Length \"TV_Length\" true true false 11 Double 2 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,TV_Length,-1,-1;Comments \"Comments\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Comments,-1,-1;TECH \"TECH\" true true false 5 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,TECH,-1,-1;Data_Sourc \"Data_Sourc\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Data_Sourc,-1,-1;Entry_Date \"Entry_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Entry_Date,-1,-1;WRNTY_DATE \"WRNTY_DATE\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,WRNTY_DATE,-1,-1;Shape_len \"Shape_len\" true true false 19 Double 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Shape_len,-1,-1;To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,To_Water,-1,-1;To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,To_Road,-1,-1;To_Public \"To_Public\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,To_Public,-1,-1;Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Size,-1,-1;Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Water,-1,-1;Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Road,-1,-1;Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Con_Pub,-1,-1;Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Consequenc,-1,-1;SSO_Count \"SSO_Count\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,SSO_Count,-1,-1;STOP_Count \"STOP_Count\" true true false 10 Double 0 10 ,Count,#,WO_STOP_1,OBJECTID,-1,-1;WO_Weight \"WO_Weight\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,WO_Weight,-1,-1;Phy_Con \"Phy_Con\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Phy_Con,-1,-1;Failure_ \"Failure_\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Failure_,-1,-1;Fail_Den \"Fail_Den\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Fail_Den,-1,-1;Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Likelihood,-1,-1;Risk \"Risk\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp,Risk,-1,-1;", "INTERSECT", "", "")
 
 # Process: Add Field
-arcpy.AddField_management(Sewer_SSO_STOP_shp, "Phy_Con", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "To_Water", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
 # Process: Add Field (2)
-arcpy.AddField_management(Sewer_SSO_STOP_shp, "Failure_", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "To_Road", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
 # Process: Add Field (3)
-arcpy.AddField_management(Sewer_SSO_STOP_shp, "Fail_Den", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "To_Public", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Near (1)
+arcpy.Near_analysis(Sewer_SSO_STOP_shp, "Streams", "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
+
+# Process: Calculate Field (1)
+arcpy.CalculateField_management(Sewer_SSO_STOP_shp, "To_Water", "!NEAR_DIST!", "PYTHON", "")
+
+# Process: Near (2)
+arcpy.Near_analysis(Sewer_SSO_STOP_shp, "'MAJOR ROADS'", "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
+
+# Process: Calculate Field (2)
+arcpy.CalculateField_management(Sewer_SSO_STOP_shp, "To_Road", "!NEAR_DIST!", "PYTHON", "")
+
+# Process: Select (3)
+arcpy.Select_analysis(BCAD_PARCELS, parcels_F_select_shp, "state_cd = 'F1' OR state_cd = 'F2'")
+
+# Process: Near (3)
+arcpy.Near_analysis(Sewer_SSO_STOP_shp, "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\parcels_F_select.shp", "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
+
+# Process: Calculate Field (3)
+arcpy.CalculateField_management(Sewer_SSO_STOP_shp, "To_Public", "!NEAR_DIST!", "PYTHON", "")
+
+# Process: Delete Field
+arcpy.DeleteField_management(Sewer_SSO_STOP_shp, "NEAR_FID;NEAR_DIST")
 
 # Process: Add Field (4)
-arcpy.AddField_management(Sewer_SSO_STOP_shp, "Likelihood", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Con_Size", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
 # Process: Add Field (5)
-arcpy.AddField_management(Sewer_SSO_STOP_shp, "Risk", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Con_Water", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
 
-# Process: Calculate Field
-arcpy.CalculateField_management(Sewer_SSO_STOP_shp, "Fail_Den", "(!SSO_Count! * 3) + !STOP_Count!", "PYTHON", "")
+# Process: Add Field (6)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Con_Road", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (7)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Con_Pub", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (8)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Consequenc", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (9)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "WO_Weight", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (10)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Phy_Con", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (11)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Failure_", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (12)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Fail_Den", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (13)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Likelihood", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Add Field (14)
+#arcpy.AddField_management(Sewer_SSO_STOP_shp, "Risk", "LONG", "", "", "", "", "NULLABLE", "NON_REQUIRED", "")
+
+# Process: Calculate Field (4)
+arcpy.CalculateField_management(Sewer_SSO_STOP_shp, "WO_Weight", "(!SSO_Count! * 3) + !STOP_Count!", "PYTHON", "")
 
 #Create a Update Cursor to update the fields
 sewers = arcpy.UpdateCursor("G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO_STOP.shp")
 
-# Create a List of the Fail_Den field values
-Fail_Den = []
+# Create a List of the WO_Weight field values to normalize them later
+WO_Weight = []
 for s in sewers:
-    Fail_Den.append(s.Fail_Den)
+    WO_Weight.append(s.WO_Weight)
+del sewers
+	
+Fail = max(WO_Weight)
+print Fail
+norm = float(10) / Fail 
 
+#Create a Update Cursor to update the fields
+sewers2 = arcpy.UpdateCursor("G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO_STOP.shp")	
+	
 # Update fields with weights	
-for s in sewers:
+for s in sewers2:
     if s.MAINSIZE > 14:
         s.Con_Size = 10
     elif s.MAINSIZE > 9 and s.MAINSIZE < 15:
@@ -209,5 +220,18 @@ for s in sewers:
        s.Failure_ = 1
     else: 
        s.Failure_ = 0  
+
+    if s.WO_Weight > 0:
+        den = s.WO_Weight
+        print den
+        s.Fail_Den = (den * norm)    
+        print s.Fail_Den    
+    else:
+        s.Fail_Den = 0
+
+# Weights can be changed, maybe make them variables else where? 
+    s.Likelihood = (.5 * s.Phy_Con) + (.25 * s.Failure_) + (.25 * s.Fail_Den)
 	
-    sewers.updateRow(s)
+    s.Risk = s.Consequenc * s.Likelihood
+		
+    sewers2.updateRow(s)
