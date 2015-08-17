@@ -6,6 +6,7 @@
 # ArcGIS Version: 10.2.2 
 # Python Version: 2.7 
 #############################################################################
+
 # Set the necessary product code
 # import arcinfo
 from arcpy import env
@@ -186,13 +187,19 @@ sewers2 = arcpy.UpdateCursor(WO_RM_shp)
 	
 # Update fields with weights	
 for s in sewers2:
-    if s.MAINSIZE > 14:
+
+    print "Main size is " + s.MAINSIZE
+    if s.MAINSIZE is None:
+        s.Con_Size = 0
+    elif s.MAINSIZE == " ":
+        s.Con_Size = 0
+    elif float(s.MAINSIZE) > 14:        
         s.Con_Size = 10
-    elif s.MAINSIZE > 9 and s.MAINSIZE < 15:
+    elif float(s.MAINSIZE) > 9 and float(s.MAINSIZE) < 15:
         s.Con_Size = 7
-    elif s.MAINSIZE > 6 and s.MAINSIZE < 10:
+    elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) < 10:
         s.Con_Size = 4
-    elif s.MAINSIZE < 7:
+    elif float(s.MAINSIZE) < 7:
         s.Con_Size = 1
     else:
         s.Con_Size = 0
@@ -249,7 +256,7 @@ for s in sewers2:
 
     if s.YEAR > 1981:
         s.Age_Con = 1
-    elif s.YEAR > 1970 and s.YEAR < 1981:
+    elif s.YEAR > 1970 and s.YEAR < 1982:
         s.Age_Con = 2
     elif s.YEAR > 1959 and s.YEAR < 1971:
         s.Age_Con = 4
@@ -276,10 +283,10 @@ for s in sewers2:
     if s.WO_Weight > 0:
         den = s.WO_Weight
         print den
-        s.Fail_Den = (den * norm)    
+        s.Fail_Den = ((den + 1) * (norm))    
         print s.Fail_Den    
     else:
-        s.Fail_Den = 0
+        s.Fail_Den = 1
 
 # Weights can be changed, maybe make them variables else where? 
     s.Likelihood = (.25 * s.Phy_Con) + (.25 * s.Age_Con) + (.25 * s.Failure_) + (.25 * s.Fail_Den)
