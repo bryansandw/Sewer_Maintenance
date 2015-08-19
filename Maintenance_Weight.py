@@ -14,6 +14,7 @@ from arcpy import env
 # Import arcpy module
 import arcpy
 env.overwriteOutput = True
+env.autoCancelling = False
 
 # Local variables:
 SS_Lines = "Database Connections\\COBSDE@erentschlar.sde\\SDE.GIS_ADMIN.COB_SANITARY_SEWER_SYSTEM\\sde.GIS_ADMIN.COB_SS_LINES"
@@ -33,6 +34,11 @@ high_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_com_impac
 WO_RM_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp"
 # This guy has been causing problems
 rm = "Database Connections\\COBSDE@erentschlar.sde\\SDE.GIS_ADMIN.COB_SANITARY_SEWER_SYSTEM\\SDE.GIS_ADMIN.COB_SS_ROUTINE_MAINTENANCE"  
+SS_buffer_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_buffer.shp"
+SS_Buffer_HS_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp"
+Density_Surface = ""
+WO_RM_HS_join_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM_HS_join.shp"
+
 
 
 print "1st Process: Copy Features (1)"
@@ -156,8 +162,17 @@ arcpy.DeleteField_management(WO_RM_shp, "NEAR_FID;NEAR_DIST")
 print "27th Process: Calculate Field (4) WO_Weight"
 arcpy.CalculateField_management(WO_RM_shp, "WO_Weight", "(!SSO_Count! * 3) + !STOP_Count!", "PYTHON", "")
 
-print "28th create Cursor find the number of days since RM took place" 
-maintenance = arcpy.UpdateCursor(WO_RM_shp)
+print "28th Process: Buffer"
+arcpy.Buffer_analysis(WO_RM_shp, SS_buffer_shp, "50 Feet", "FULL", "ROUND", "NONE", "")
+
+print "29th Process: Optimized Hot Spot Analysis"
+arcpy.OptimizedHotSpotAnalysis_stats(SS_buffer_shp, SS_Buffer_HS_shp, "WO_Weight", "COUNT_INCIDENTS_WITHIN_FISHNET_POLYGONS", "", "", Density_Surface)
+
+print "30th Process: Spatial Join"
+arcpy.SpatialJoin_analysis(WO_RM_shp, SS_Buffer_HS_shp, WO_RM_HS_join_shp, "JOIN_ONE_TO_ONE", "KEEP_COMMON", "Join_Count \"Join_Count\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Join_Count,-1,-1;TARGET_FID \"TARGET_FID\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,TARGET_FID,-1,-1;MAINSIZE \"MAINSIZE\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,MAINSIZE,-1,-1;PLAT_ID \"PLAT_ID\" true true false 15 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,PLAT_ID,-1,-1;CLASS \"CLASS\" true true false 25 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,CLASS,-1,-1;MAT_TYPE \"MAT_TYPE\" true true false 15 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,MAT_TYPE,-1,-1;Flow_Out \"Flow_Out\" true true false 17 Double 3 16 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Flow_Out,-1,-1;Flow_In \"Flow_In\" true true false 17 Double 3 16 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Flow_In,-1,-1;DROP_INVER \"DROP_INVER\" true true false 19 Double 11 18 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,DROP_INVER,-1,-1;MAIN_TYPE \"MAIN_TYPE\" true true false 12 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,MAIN_TYPE,-1,-1;LENGTH \"LENGTH\" true true false 12 Double 2 11 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,LENGTH,-1,-1;YEAR \"YEAR\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,YEAR,-1,-1;BIN_NO \"BIN_NO\" true true false 25 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,BIN_NO,-1,-1;Project_NO \"Project_NO\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Project_NO,-1,-1;Calc_Leng \"Calc_Leng\" true true false 14 Double 2 13 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Calc_Leng,-1,-1;Maintenanc \"Maintenanc\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Maintenanc,-1,-1;Maint_Year \"Maint_Year\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Maint_Year,-1,-1;Maint_Mat \"Maint_Mat\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Maint_Mat,-1,-1;Maint_Type \"Maint_Type\" true true false 10 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Maint_Type,-1,-1;Maint_Stat \"Maint_Stat\" true true false 20 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Maint_Stat,-1,-1;Report \"Report\" true true false 175 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Report,-1,-1;CCTV_File \"CCTV_File\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,CCTV_File,-1,-1;CCTV_Date \"CCTV_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,CCTV_Date,-1,-1;CCTV_Stat \"CCTV_Stat\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,CCTV_Stat,-1,-1;TV_Length \"TV_Length\" true true false 11 Double 2 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,TV_Length,-1,-1;Comments \"Comments\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Comments,-1,-1;TECH \"TECH\" true true false 5 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,TECH,-1,-1;Data_Sourc \"Data_Sourc\" true true false 50 Text 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Data_Sourc,-1,-1;Entry_Date \"Entry_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Entry_Date,-1,-1;WRNTY_DATE \"WRNTY_DATE\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,WRNTY_DATE,-1,-1;Shape_len \"Shape_len\" true true false 19 Double 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Shape_len,-1,-1;To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,To_Water,-1,-1;To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,To_Road,-1,-1;To_Low_Pub \"To_Low_Pub\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,To_Low_Pub,-1,-1;To_Mod_Pub \"To_Mod_Pub\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,To_Mod_Pub,-1,-1;To_High_Pu \"To_High_Pu\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,To_High_Pu,-1,-1;Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Con_Size,-1,-1;Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Con_Water,-1,-1;Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Con_Road,-1,-1;Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Con_Pub,-1,-1;Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Consequenc,-1,-1;SSO_Count \"SSO_Count\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,SSO_Count,-1,-1;STOP_Count \"STOP_Count\" true true false 10 Double 0 10 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,STOP_Count,-1,-1;WO_Weight \"WO_Weight\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,WO_Weight,-1,-1;Phy_Con \"Phy_Con\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Phy_Con,-1,-1;Age_Con \"Age_Con\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Age_Con,-1,-1;Failure_ \"Failure_\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Failure_,-1,-1;Fail_Den \"Fail_Den\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Fail_Den,-1,-1;Comp_Date \"Comp_Date\" true true false 8 Date 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Comp_Date,-1,-1;RM_Count \"RM_Count\" true true false 19 Double 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,RM_Count,-1,-1;DaySinRM \"DaySinRM\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,DaySinRM,-1,-1;Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Likelihood,-1,-1;Risk \"Risk\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp,Risk,-1,-1;SOURCE_ID \"SOURCE_ID\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp,SOURCE_ID,-1,-1;WO_Weight_1 \"WO_Weight_1\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp,WO_Weight,-1,-1;GiZScore \"GiZScore\" true true false 19 Double 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp,GiZScore,-1,-1;GiPValue \"GiPValue\" true true false 19 Double 0 0 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp,GiPValue,-1,-1;Gi_Bin \"Gi_Bin\" true true false 9 Long 0 9 ,First,#,G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp,Gi_Bin,-1,-1", "INTERSECT", "", "")
+
+print "30th create Cursor find the number of days since RM took place" 
+maintenance = arcpy.UpdateCursor(WO_RM_HS_join_shp)
 
 for m in maintenance:
     if m.Comp_Date is None:
@@ -168,22 +183,22 @@ for m in maintenance:
     maintenance.updateRow(m)
 del maintenance
 
-print """29th create a Update Cursor to make a List of 
-the WO_Weight field values to normalize them later"""
-sewers = arcpy.UpdateCursor(WO_RM_shp)
+"""29th create a Update Cursor to make a List of 
+the WO_Weight field values to normalize them later
+sewers = arcpy.UpdateCursor(WO_RM_HS_join_shp)"""
 
-WO_Weight = []
+'''WO_Weight = []
 for s in sewers:
     WO_Weight.append(s.WO_Weight)
 del sewers
 
 Fail = max(WO_Weight)
 #print Fail
-norm = float(10) / Fail 
+norm = float(10) / Fail '''
 
 
 #Create a Update Cursor to update the fields
-sewers2 = arcpy.UpdateCursor(WO_RM_shp)	
+sewers2 = arcpy.UpdateCursor(WO_RM_HS_join_shp)	
 	
 # Update fields with weights	
 for s in sewers2:
@@ -280,13 +295,18 @@ for s in sewers2:
     else: 
        s.Failure_ = 0  
 
-    if s.WO_Weight > 0:
-        den = s.WO_Weight
-        print den
-        s.Fail_Den = ((den + 1) * (norm))    
-        print s.Fail_Den    
+    if s.Gi_Bin > 2:
+        s.Fail_Den = 10    
+    elif s.Gi_Bin > 1:
+        s.Fail_Den = 7
+    elif s.Gi_Bin > 0:
+        s.Fail_Den = 4
+    elif s.Gi_Bin < 0:
+        s.Fail_Den = 1	
+    elif s.Gi_Bin < 1:
+        s.Fail_Den = 2		
     else:
-        s.Fail_Den = 1
+        s.Fail_Den = 0
 
 # Weights can be changed, maybe make them variables else where? 
     s.Likelihood = (.25 * s.Phy_Con) + (.25 * s.Age_Con) + (.25 * s.Failure_) + (.25 * s.Fail_Den)
