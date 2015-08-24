@@ -6,12 +6,20 @@
 # ArcGIS Version: 10.2.2 
 # Python Version: 2.7 
 #############################################################################
+
+# Currently only works in python window in arcmap.  sewer2.mxd
+# The snap proccess throughs errors if not run in the map. 
+# May be able to change some of the arguments.
+# Or maybe add it to the environment/workspace???
+
 # Set the necessary product code
 # import arcinfo
 from arcpy import env
 
 # Import arcpy module
 import arcpy
+
+# Environment set-up
 env.overwriteOutput = True
 env.autoCancelling = False
 
