@@ -7,19 +7,14 @@
 # Python Version: 2.7 
 #############################################################################
 
-# Currently only works in comand line
-# Cannot run entire script in ArcMAP or Catalog
-# Will be kicked out after the hot spot analysis is run
-
 # Set the necessary product code
 # import arcinfo
 from arcpy import env
-
-# Import arcpy module
 import arcpy
+import datetime
 env.overwriteOutput = True
 env.autoCancelling = False
-arcpy.env.workspace = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer"
+env.workspace = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer"
 
 # Local variables:
 SS_Lines = r'Database Connections\GISDATA(WS_DB1)@ERENTSCHLAR.sde\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\WS_DB1.SDE.COB_SS_LINES'
@@ -50,7 +45,10 @@ maint = 'G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maintenance.shp'
 MH = "Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_MANHOLES"
 target_MH = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\target_MH.shp"
 map_output_folder = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maps\\"
-
+map = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer2.mxd"
+single_MH_lyr = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\single_MH.shp"
+high_risk_lines = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_risk_lines.shp"
+risky_line = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_risk_line"
 
 print "1st Process: Copy Features (1)"
 arcpy.CopyFeatures_management(SS_Lines, Sewer_2_shp, "", "0", "0", "0")
@@ -130,7 +128,7 @@ print "11th Adding Field mappings"
 # This creates field map objects for each field in the sewer file.
 fieldmappings2 = arcpy.FieldMappings()
 fieldmappings2.addTable(Sewer_SSO_STOP_shp)
-print fieldmappings2.fieldCount
+print "Before adding fields there are " + str(fieldmappings2.fieldCount) + " fields"
 
 fieldmappings3 = arcpy.FieldMappings()
 
@@ -149,6 +147,8 @@ RC.aliasName = "RM_Count"
 RM_Count.outputField = RC
 
 # Create the field maps to be added to the output
+# There has got to be a better way to do this
+# only way I could figure out...
 fieldmappings3.loadFromString("DaySinRM \"DaySinRM\" true true false 9 Long 0 0 ,First,#;") #,Sewer_2,DaySinRM,-1,-1
 DaySinRM = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("DaySinRM"))
 #print "Field map DaySinRM"
@@ -204,7 +204,6 @@ fieldmappings3.loadFromString("Risk \"Risk\" true true false 9 Long 0 9 ,First,#
 Risk = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Risk"))
 
 # Add the field map to the field mapping object 
-# Does not work, This is an index dumb dumb
 fieldmappings2.addFieldMap(To_Water) 
 fieldmappings2.addFieldMap(To_Road) 
 fieldmappings2.addFieldMap(To_Low_Pub) 
@@ -226,7 +225,7 @@ fieldmappings2.addFieldMap(Fail_Den)
 fieldmappings2.addFieldMap(Likelihood) 
 fieldmappings2.addFieldMap(Risk)
 
-print fieldmappings2.fieldCount
+print "After adding fields there are " + str(fieldmappings2.fieldCount) + " fields."
 
 print "12th Process: Spatial Join"
 ## Field 
@@ -538,15 +537,83 @@ sorted_risk = sorted(risk_list, reverse=True)
 #print sorted_risk
 place_ten = sorted_risk[9]
 
-print """Process: Make Layer where the risk is the same or greater 
-than the tenth highest list value"""
+print """Process: Make Layer where the risk is the same or
+greater than the tenth highest list value"""
 where_clause = "\"Risk\" >= " + str(place_ten)
 arcpy.MakeFeatureLayer_management(Risk_shp, "High_Risk_lyr", where_clause)
+arcpy.CopyFeatures_management("High_Risk_lyr", high_risk_lines)
 
 print """Process: Make Layer where the Manholes 
-are adjacent to the high risk sewer lines """
+are adjacent to the high risk sewer lines"""
 arcpy.MakeFeatureLayer_management(MH, "MH_lyr")
 arcpy.SelectLayerByLocation_management("MH_lyr", "INTERSECT", "High_Risk_lyr")
 arcpy.CopyFeatures_management("MH_lyr", target_MH)
 
+
+print "43rd: Create a Update Cursor to select the lines"
+risky_lines = arcpy.SearchCursor(high_risk_lines)	
+date = str(datetime.date.today())
+rline_FID_list =[]
+
+for line in risky_lines:
+    rline_FID_list.append(line.FID)
+del risky_lines
+print rline_FID_list
+
+print """Set up map document environment to create 
+exported map documents as pdfs in map folder"""
+mapdoc = arcpy.mapping.MapDocument(map)
+
+# need to loop through the target MH
+# May need to loop through based on the FID value???
+print "exporting maps"
+for FID in rline_FID_list:
+    where_clause2 = "\"FID\" = " + str(FID) + ""
+    print where_clause2
+    single_risky_line = risky_line + str(FID) + ".shp"
+    arcpy.Select_analysis(high_risk_lines, single_risky_line, where_clause2)
+
+    #Data Frame 
+    data_frame = arcpy.mapping.ListDataFrames(mapdoc)[0]
+    print data_frame.name
+    print data_frame.scale
+    scale = data_frame.scale
+    
+    # Don't really need this.... 
+    # Need to find a way to change the scale to be 
+	# proportionate to length of line	
+    if scale < 500.00:
+        new_scale = 500.00
+    elif scale > 500.00 and scale < 1000.00:
+        new_scale = 1000.00
+    elif scale > 1000.00 and scale < 1500.00:
+        new_scale = 1500.00		
+    elif scale > 1500.00 and scale < 2000.00:
+        new_scale = 2000.00		
+    elif scale > 2000.00 and scale < 2500.00:
+        new_scale = 2500.00
+    elif scale > 2500.00 and scale < 3000.00:
+        new_scale = 3000.00		
+    elif scale > 3000.00 and scale < 3500.00:
+        new_scale = 3500.00
+    else:
+        new_scale = data_frame.scale
+		
+    wildcard = "high_risk_line" + str(FID) 
+    print wildcard
+    lyr = arcpy.mapping.ListLayers(mapdoc, wildcard)[0]
+    print lyr
+    data_frame.extent = lyr.getExtent(True) 
+    data_frame.scale = new_scale 
+    #data_frame.scale = lyr.getScale(True)
+    print data_frame.extent
+    arcpy.RefreshActiveView()      
+    
+    #arcpy.SelectLayerByAttribute_management(target_MH, "NEW_SELECTION", ' "LABEL" = mh.LABEL ')
+    #zoomToSelectedFeatures(mh)
+
+    map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
+    arcpy.mapping.ExportToPDF(mapdoc, map_output)
+
+	
 print "Done!"
