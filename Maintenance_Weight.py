@@ -567,53 +567,75 @@ mapdoc = arcpy.mapping.MapDocument(map)
 # need to loop through the target MH
 # May need to loop through based on the FID value???
 print "exporting maps"
+#Data Frame 
+data_frame = arcpy.mapping.ListDataFrames(mapdoc)[0]
+print data_frame.name
+print data_frame.scale
+scale = data_frame.scale
+
+legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT", "Legend")[0]
+legend.autoAdd = False
+
+
 for FID in rline_FID_list:
     where_clause2 = "\"FID\" = " + str(FID) + ""
     print where_clause2
     single_risky_line = risky_line + str(FID) + ".shp"
     arcpy.Select_analysis(high_risk_lines, single_risky_line, where_clause2)
+    newlayer = arcpy.mapping.Layer(single_risky_line)
+    arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")
 
-    #Data Frame 
-    data_frame = arcpy.mapping.ListDataFrames(mapdoc)[0]
-    print data_frame.name
-    print data_frame.scale
-    scale = data_frame.scale
-    
-    # Don't really need this.... 
-    # Need to find a way to change the scale to be 
-	# proportionate to length of line	
-    if scale < 500.00:
-        new_scale = 500.00
-    elif scale > 500.00 and scale < 1000.00:
-        new_scale = 1000.00
-    elif scale > 1000.00 and scale < 1500.00:
-        new_scale = 1500.00		
-    elif scale > 1500.00 and scale < 2000.00:
-        new_scale = 2000.00		
-    elif scale > 2000.00 and scale < 2500.00:
-        new_scale = 2500.00
-    elif scale > 2500.00 and scale < 3000.00:
-        new_scale = 3000.00		
-    elif scale > 3000.00 and scale < 3500.00:
-        new_scale = 3500.00
-    else:
-        new_scale = data_frame.scale
-		
-    wildcard = "high_risk_line" + str(FID) 
+    arcpy.RefreshActiveView()
+    arcpy.RefreshTOC()
+
+
+    wildcard = "high_risk_line" + str(FID)
     print wildcard
-    lyr = arcpy.mapping.ListLayers(mapdoc, wildcard)[0]
-    print lyr
-    data_frame.extent = lyr.getExtent(True) 
-    data_frame.scale = new_scale 
-    #data_frame.scale = lyr.getScale(True)
-    print data_frame.extent
-    arcpy.RefreshActiveView()      
+    print arcpy.mapping.ListLayers(mapdoc)
+    try:
+        lyr = arcpy.mapping.ListLayers(mapdoc, wildcard)[0]
+        print lyr
+        data_frame.extent = lyr.getExtent(True)
     
-    #arcpy.SelectLayerByAttribute_management(target_MH, "NEW_SELECTION", ' "LABEL" = mh.LABEL ')
-    #zoomToSelectedFeatures(mh)
-
-    map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
-    arcpy.mapping.ExportToPDF(mapdoc, map_output)
-
+        arcpy.RefreshActiveView()     	
 	
+        #data_frame.scale = new_scale 
+        #data_frame.scale = lyr.getScale(True)
+        print data_frame.extent
+ 
+        scale = data_frame.scale
+        print data_frame.scale
+	
+        # Don't really need this.... 
+        # Need to find a way to change the scale to be 
+        # proportionate to length of line	
+        if scale < 500.00:
+            new_scale = 500.00
+        elif scale > 500.00 and scale < 1000.00:
+            new_scale = 1000.00
+        elif scale > 1000.00 and scale < 1500.00:
+            new_scale = 1500.00		
+        elif scale > 1500.00 and scale < 2000.00:
+            new_scale = 2000.00		
+        elif scale > 2000.00 and scale < 2500.00:
+            new_scale = 2500.00
+        elif scale > 2500.00 and scale < 3000.00:
+             new_scale = 3000.00		
+        elif scale > 3000.00 and scale < 3500.00:
+             new_scale = 3500.00
+        else:
+            new_scale = data_frame.scale
+        
+        data_frame.scale = new_scale
+        print data_frame.scale	
+		
+        arcpy.RefreshActiveView()     		
+	
+        map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
+        arcpy.mapping.ExportToPDF(mapdoc, map_output)		
+        print "Created Map for " + wildcard
+		
+    except:
+        print "Could not find " + wildcard
+     
 print "Done!"
