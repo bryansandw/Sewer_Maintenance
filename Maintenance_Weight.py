@@ -17,7 +17,10 @@ env.autoCancelling = False
 env.workspace = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer"
 
 # Local variables:
-SS_Lines = r'Database Connections\GISDATA(WS_DB1)@ERENTSCHLAR.sde\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\WS_DB1.SDE.COB_SS_LINES'
+# This will be used in Process 1
+SS_Lines = r'G:\4_LAYERS\WATER_SERVICES\SANITARY SEWER SYSTEM\COB_SS_LINES (Public).lyr' 
+#"Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_LINES"
+# This will be used in Process 2
 All_WO = "G:\\4_LAYERS\\COB_HTE_WORK_ORDERS.lyr" #"G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\All_WO.shp"
 Streams = "G:\\4_LAYERS\\FEMA\\BRAZOS_FEMA_CREEK_STREAM.lyr"
 MAJOR_ROADS = "G:\\4_LAYERS\\BRAZOS_CENTERLINES(MAJOR ROADS).lyr"
@@ -32,8 +35,7 @@ low_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\low_com_impact.
 mod_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\mod_com_impact.shp"
 high_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_com_impact.shp"
 WO_RM_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp"
-# This guy has been causing problems
-rm = r'Database Connections\GISDATA(WS_DB1)@ERENTSCHLAR.sde\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\WS_DB1.SDE.COB_SS_ROUTINE_MAINTENANCE'
+rm = "Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_ROUTINE_MAINTENANCE"
 SS_buffer_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_buffer.shp"
 low_com_imp_buf = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\low_com_imp_buffer.shp"
 SS_Buffer_HS_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp"
@@ -41,22 +43,31 @@ Density_Surface = ""
 WO_RM_HS_join_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM_HS_join.shp"
 Risk_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Risk.shp"
 #May not use
-maint = 'G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maintenance.shp'
+maint = 'G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maintenance.lyr'
 MH = "Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_MANHOLES"
 target_MH = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\target_MH.shp"
 map_output_folder = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maps\\"
 map = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer2.mxd"
-single_MH_lyr = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\single_MH.shp"
+#single_MH_lyr = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\single_MH.shp"
 high_risk_lines = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_risk_lines.shp"
-risky_line = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_risk_line"
+risky_line = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Target_Line.shp"
 
-print "1st Process: Copy Features (1)"
-arcpy.CopyFeatures_management(SS_Lines, Sewer_2_shp, "", "0", "0", "0")
+print "1st Process: Select Sewer lines less than 12 inches"
+# This creates a copy of the SS_Line and outputs the copy as Sewer_2_shp
+arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" = '10' OR \"MAINSIZE\" = '2' OR \"MAINSIZE\" = '2.5' OR \"MAINSIZE\" = '3' OR \"MAINSIZE\" = '4' OR \"MAINSIZE\" = '5.4' OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'")
+
+
 
 print "2nd Process: Select (1)"
+# This creates a shapefile of the work orders (All_WO) that have the 
+# CATCODE STOP and the TASKCODE USG ect... and out puts the points 
+# As WO_STOP_1
 arcpy.Select_analysis(All_WO, WO_STOP_1, "\"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'USG' OR \"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'US' OR \"CATCODE\" = 'STOP' AND\"TASKCODE\" = 'USR'")
 
 print "3rd define snapping environments"
+# The snapping environments set the rules for how the snap 
+# function will snap features together
+# 
 snapEnv1 = [SS_Lines, "EDGE", '50 Feet']
 snapEnv2 = [SS_Lines, "EDGE", '100 Feet']
 snapEnv3 = [SS_Lines, "EDGE", '150 Feet']
@@ -74,6 +85,7 @@ arcpy.Select_analysis(All_WO, WO_SSO_1, "\"CATCODE\" = 'SSO' AND \"TASKCODE\" = 
 
 print "6th Process: Snap (2)"
 arcpy.Snap_edit(WO_SSO_1, [snapEnv1, snapEnv2, snapEnv3, snapEnv4, snapEnv5, snapEnv6, snapEnv7, snapEnv8])
+del snapEnv1, snapEnv2, snapEnv3, snapEnv4, snapEnv5, snapEnv6, snapEnv7, snapEnv8
 
 print "7th Adding Field mappings"
 # Create a new fieldmappings and add the input feature classes.
@@ -197,6 +209,9 @@ Failure_  = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Failur
 fieldmappings3.loadFromString("Fail_Den \"Fail_Den\" true true false 9 Long 0 9 ,First,#,Sewer_2,Fail_Den,-1,-1;")
 Fail_Den = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Fail_Den"))
 
+fieldmappings3.loadFromString("STOP_like \"STOP_like\" true true false 9 Long 0 9 ,First,#,Sewer_2,STOP_like,-1,-1;")
+STOP_like = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("STOP_like"))
+
 fieldmappings3.loadFromString("Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,Sewer_2,Likelihood,-1,-1;")
 Likelihood = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Likelihood"))
 
@@ -218,6 +233,7 @@ fieldmappings2.addFieldMap(Con_Road)
 fieldmappings2.addFieldMap(Con_Pub) 
 fieldmappings2.addFieldMap(Consequenc)
 fieldmappings2.addFieldMap(WO_Weight) 
+fieldmappings2.addFieldMap(STOP_like)
 fieldmappings2.addFieldMap(Phy_Con)
 fieldmappings2.addFieldMap(Age_Con)
 fieldmappings2.addFieldMap(Failure_) 
@@ -421,19 +437,36 @@ for s in sewers2:
         s.Con_Size = 0
     elif s.MAINSIZE == " ":
         s.Con_Size = 0
-    elif float(s.MAINSIZE) > 14:        
+    elif float(s.MAINSIZE) > 8:        
         s.Con_Size = 10
-    elif float(s.MAINSIZE) > 9 and float(s.MAINSIZE) < 15:
+    elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) <= 8:
         s.Con_Size = 7
-    elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) < 10:
+    elif float(s.MAINSIZE) > 4 and float(s.MAINSIZE) <= 6:
         s.Con_Size = 4
-    elif float(s.MAINSIZE) < 7:
+    elif float(s.MAINSIZE) <= 4:
         s.Con_Size = 1
     else:
         s.Con_Size = 0
     #print s.Con_Size
-	
-    #print "To_Water is " + s.To_Water	
+    
+	#print "Main size is " + s.MAINSIZE
+    if s.MAINSIZE is None:
+        s.STOP_like = 0
+    elif s.MAINSIZE == " ":
+        s.STOP_like = 0
+    elif float(s.MAINSIZE) > 8 and float(s.MAINSIZE) <= 12:        
+        s.STOP_like = 2
+    elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) <= 8:
+        s.STOP_like = 4
+    elif float(s.MAINSIZE) > 4 and float(s.MAINSIZE) <= 6:
+        s.STOP_like = 7
+    elif float(s.MAINSIZE) <= 4:
+        s.STOP_like = 10
+    else:
+        s.STOP_like = 0
+    #print s.Con_Size	
+    
+	#print "To_Water is " + s.To_Water	
     if s.To_Water <= 100:
         s.Con_Water = 10
     elif s.To_Water > 100 and s.To_Water <= 500:
@@ -522,7 +555,7 @@ for s in sewers2:
         s.Fail_Den = 0
 
 # Weights can be changed, maybe make them variables else where? 
-    s.Likelihood = (.05 * s.Phy_Con) + (.15 * s.Mark_Weigh) + (.4 * s.Age_Con) + (.1 * s.Failure_) + (.3 * s.Fail_Den)
+    s.Likelihood = (.35 * s.Phy_Con) + (.1 * s.Mark_Weigh) + (.05 * s.Age_Con) + (.1 * s.Failure_) + (.3 * s.Fail_Den) + (.1 * s.STOP_like)
 
     s.Risk = s.Consequenc * s.Likelihood
     risk_list.append (s.Risk)
@@ -549,7 +582,6 @@ arcpy.MakeFeatureLayer_management(MH, "MH_lyr")
 arcpy.SelectLayerByLocation_management("MH_lyr", "INTERSECT", "High_Risk_lyr")
 arcpy.CopyFeatures_management("MH_lyr", target_MH)
 
-
 print "43rd: Create a Update Cursor to select the lines"
 risky_lines = arcpy.SearchCursor(high_risk_lines)	
 date = str(datetime.date.today())
@@ -562,45 +594,59 @@ print rline_FID_list
 
 print """Set up map document environment to create 
 exported map documents as pdfs in map folder"""
-mapdoc = arcpy.mapping.MapDocument(map)
 
-# need to loop through the target MH
-# May need to loop through based on the FID value???
-print "exporting maps"
-#Data Frame 
-data_frame = arcpy.mapping.ListDataFrames(mapdoc)[0]
-print data_frame.name
-print data_frame.scale
-scale = data_frame.scale
-
-legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT", "Legend")[0]
-legend.autoAdd = False
+#print slyr.symbology
+#print slyr.symbologyType
+#print slyr
+#styleItem = arcpy.mapping.ListStyleItems("USER_STYLE", "Legend Items")#[0] 
+#print styleItem
 
 
 for FID in rline_FID_list:
     where_clause2 = "\"FID\" = " + str(FID) + ""
     print where_clause2
-    single_risky_line = risky_line + str(FID) + ".shp"
+    single_risky_line = risky_line  #+ str(FID) + ".shp" 
     arcpy.Select_analysis(high_risk_lines, single_risky_line, where_clause2)
-    newlayer = arcpy.mapping.Layer(single_risky_line)
-    arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")
+    arcpy.MakeFeatureLayer_management(maint, "maint_lyr")
+    arcpy.SelectLayerByLocation_management("maint_lyr", "INTERSECT", single_risky_line)
+
+    maintDis = arcpy.SearchCursor("maint_lyr")
+    for m in maintDis:
+        district = m.District
+	#newlayer = arcpy.mapping.Layer(single_risky_line)
+    #arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")
+	
+    mapdoc = arcpy.mapping.MapDocument(map)
+
+    # need to loop through the target MH
+    # May need to loop through based on the FID value???
+    print "exporting maps"
+    #Data Frame 
+    data_frame = arcpy.mapping.ListDataFrames(mapdoc)[0]
+    print data_frame.name
+    print data_frame.scale
+    scale = data_frame.scale
+
+    legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT", "Legend")[0]
+    legend.autoAdd = True
+    for text in arcpy.mapping.ListLayoutElements(mapdoc, "TEXT_ELEMENT"):
+        if text.text == "Text":
+            text.text = district + "\n" + date
+		
 
     arcpy.RefreshActiveView()
     arcpy.RefreshTOC()
 
 
-    wildcard = "high_risk_line" + str(FID)
+    wildcard = "Target Line" #+ str(FID)
     print wildcard
     print arcpy.mapping.ListLayers(mapdoc)
     try:
         lyr = arcpy.mapping.ListLayers(mapdoc, wildcard)[0]
         print lyr
         data_frame.extent = lyr.getExtent(True)
-    
         arcpy.RefreshActiveView()     	
 	
-        #data_frame.scale = new_scale 
-        #data_frame.scale = lyr.getScale(True)
         print data_frame.extent
  
         scale = data_frame.scale
@@ -630,12 +676,34 @@ for FID in rline_FID_list:
         print data_frame.scale	
 		
         arcpy.RefreshActiveView()     		
-	
+	    
+		#Improve naming convention?
         map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
         arcpy.mapping.ExportToPDF(mapdoc, map_output)		
-        print "Created Map for " + wildcard
+        print "Created Map for " + wildcard + " " + str(FID + 1)
+        
+        #arcpy.Delete_management(data_frame, single_risky_line)
 		
+        del mapdoc
     except:
         print "Could not find " + wildcard
-     
+
+### Delete Shapefiles that are no longer needed ### 
+#arcpy.Delete_management(out_data, "")
+arcpy.Delete_management(Sewer_2_shp, "")
+#arcpy.Delete_management(WO_STOP_1, "")
+arcpy.Delete_management(WO_SSO_1, "")
+arcpy.Delete_management(Sewer_SSO_shp, "")
+arcpy.Delete_management(Sewer_SSO_STOP_shp, "")
+arcpy.Delete_management(parcels_select_shp, "")
+arcpy.Delete_management(low_com_impact, "")
+arcpy.Delete_management(mod_com_impact, "")
+arcpy.Delete_management(high_com_impact, "")
+arcpy.Delete_management(WO_RM_shp, "")
+arcpy.Delete_management(SS_buffer_shp, "")
+arcpy.Delete_management(low_com_imp_buf, "")
+arcpy.Delete_management(SS_Buffer_HS_shp, "")
+arcpy.Delete_management(WO_RM_HS_join_shp, "")
+#
+ 
 print "Done!"
