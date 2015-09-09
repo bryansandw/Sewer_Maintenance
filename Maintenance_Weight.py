@@ -16,58 +16,70 @@ env.overwriteOutput = True
 env.autoCancelling = False
 env.workspace = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer"
 
-# Local variables:
+##### Local variables: #####
+### Data from Database will only be copied and not altered ###
+# Used to use my database connection, but the layers work and this way other
+# people should hopefully be able to run the script without having to change
+# any of the variables
+
 # This will be used in Process 1
-SS_Lines = r'G:\4_LAYERS\WATER_SERVICES\SANITARY SEWER SYSTEM\COB_SS_LINES (Public).lyr' 
-#"Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_LINES"
+SS_Lines = "G:\\4_LAYERS\\WATER_SERVICES\\SANITARY SEWER SYSTEM\\COB_SS_LINES (Public).lyr"
 # This will be used in Process 2
-All_WO = "G:\\4_LAYERS\\COB_HTE_WORK_ORDERS.lyr" #"G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\All_WO.shp"
+All_WO = "G:\\4_LAYERS\\COB_HTE_WORK_ORDERS.lyr" 
 Streams = "G:\\4_LAYERS\\FEMA\\BRAZOS_FEMA_CREEK_STREAM.lyr"
 MAJOR_ROADS = "G:\\4_LAYERS\\BRAZOS_CENTERLINES(MAJOR ROADS).lyr"
 BCAD_PARCELS = "G:\\4_LAYERS\\BCAD\\BCAD_PARCELS.lyr"
-Sewer_2_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_2.shp"
-WO_STOP_1 = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_STOP_1.shp"
-WO_SSO_1 = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_SSO_1.shp"
-Sewer_SSO_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO.shp"
-Sewer_SSO_STOP_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer_SSO_STOP.shp"
-parcels_select_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\parcels_select.shp"
-low_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\low_com_impact.shp"
-mod_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\mod_com_impact.shp"
-high_com_impact = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_com_impact.shp"
-WO_RM_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM.shp"
-rm = "Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_ROUTINE_MAINTENANCE"
-SS_buffer_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_buffer.shp"
-low_com_imp_buf = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\low_com_imp_buffer.shp"
-SS_Buffer_HS_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\SS_Buffer_HS.shp"
+rm = "G:\\4_LAYERS\\WATER_SERVICES\\SANITARY SEWER SYSTEM\\COB_SS_ROUTINE_MAINTENANCE.lyr"
+MH = "G:\\4_LAYERS\\WATER_SERVICES\\SANITARY SEWER SYSTEM\\COB_SS_MANHOLES.lyr"
+
+### These are output locations for the files that are created and manipulated
+### many will be deleted a the end of the script
+Sewer_2_shp = env.workspace + "\\Sewer_2.shp"
+WO_STOP_1 = env.workspace + "\\WO_STOP_1.shp"
+WO_SSO_1 = env.workspace + "\\WO_SSO_1.shp"
+Sewer_SSO_shp = env.workspace + "\\Sewer_SSO.shp"
+Sewer_SSO_STOP_shp = env.workspace + "\\Sewer_SSO_STOP.shp"
+parcels_select_shp = env.workspace + "\\parcels_select.shp"
+low_com_impact = env.workspace + "\\low_com_impact.shp"
+mod_com_impact = env.workspace + "\\mod_com_impact.shp"
+high_com_impact = env.workspace + "\\high_com_impact.shp"
+WO_RM_shp = env.workspace + "\\WO_RM.shp"
+SS_buffer_shp = env.workspace + "\\SS_buffer.shp"
+low_com_imp_buf = env.workspace + "\\low_com_imp_buffer.shp"
+SS_Buffer_HS_shp = env.workspace + "\\SS_Buffer_HS.shp"
 Density_Surface = ""
-WO_RM_HS_join_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\WO_RM_HS_join.shp"
-Risk_shp = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Risk.shp"
+WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
+Risk_shp = env.workspace + "\\Risk.shp"
 #May not use
-maint = 'G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maintenance.lyr'
-MH = "Database Connections\\GISDATA(WS_DB1)@ERENTSCHLAR.sde\\WS_DB1.SDE.COB_SANITARY_SEWER_SYSTEM\\WS_DB1.SDE.COB_SS_MANHOLES"
-target_MH = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\target_MH.shp"
-map_output_folder = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Maps\\"
-map = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Sewer2.mxd"
-#single_MH_lyr = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\single_MH.shp"
-high_risk_lines = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\high_risk_lines.shp"
-risky_line = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer\\Target_Line.shp"
+maint = env.workspace + "\\Maintenance.lyr"
+target_MH = env.workspace + "\\target_MH.shp"
+map_output_folder = env.workspace + "\\Maps\\"
+map = env.workspace + "\\Sewer2.mxd"
+#single_MH_lyr = env.workspace + "\\single_MH.shp"
+high_risk_lines = env.workspace + "\\high_risk_lines.shp"
+risky_line = env.workspace + "\\Target_Line.shp"
 
 print "1st Process: Select Sewer lines less than 12 inches"
-# This creates a copy of the SS_Line and outputs the copy as Sewer_2_shp
-arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" = '10' OR \"MAINSIZE\" = '2' OR \"MAINSIZE\" = '2.5' OR \"MAINSIZE\" = '3' OR \"MAINSIZE\" = '4' OR \"MAINSIZE\" = '5.4' OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'")
-
-
+# This creates selects the SS_Line that are < 12 
+# and outputs the copy as Sewer_2_shp
+# The Mainsize field is string for some reason, so I had to select 
+# each variable that was less than 12
+arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" = '10'" + 
+    " OR \"MAINSIZE\" = '2' OR \"MAINSIZE\" = '2.5' OR " + 
+    "\"MAINSIZE\" = '3' OR \"MAINSIZE\" = '4' OR \"MAINSIZE\" = '5.4'"
+    + "	OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'")
 
 print "2nd Process: Select (1)"
 # This creates a shapefile of the work orders (All_WO) that have the 
 # CATCODE STOP and the TASKCODE USG ect... and out puts the points 
 # As WO_STOP_1
-arcpy.Select_analysis(All_WO, WO_STOP_1, "\"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'USG' OR \"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'US' OR \"CATCODE\" = 'STOP' AND\"TASKCODE\" = 'USR'")
+arcpy.Select_analysis(All_WO, WO_STOP_1, "\"CATCODE\" = 'STOP' AND " +
+    "\"TASKCODE\" = 'USG' OR \"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'US'"
+    + " OR \"CATCODE\" = 'STOP' AND\"TASKCODE\" = 'USR'")
 
 print "3rd define snapping environments"
 # The snapping environments set the rules for how the snap 
 # function will snap features together
-# 
 snapEnv1 = [SS_Lines, "EDGE", '50 Feet']
 snapEnv2 = [SS_Lines, "EDGE", '100 Feet']
 snapEnv3 = [SS_Lines, "EDGE", '150 Feet']
@@ -78,14 +90,36 @@ snapEnv7 = [SS_Lines, "EDGE", '350 Feet']
 snapEnv8 = [SS_Lines, "EDGE", '400 Feet']
 
 print "4th Process: Snap (1)"
-arcpy.Snap_edit(WO_STOP_1, [snapEnv1, snapEnv2, snapEnv3, snapEnv4, snapEnv5, snapEnv6, snapEnv7, snapEnv8])
+# The copy of the sewer STOP work orders are snapped to the 
+# sewer lines, by starting at 50 ft and working out at 50 ft
+# intervals the hope is that the majority of the WO points will 
+# end up snapped to the line where the wo occurred, but the wo's 
+# do not identify what line they occurred on and only identify
+# what address the wo occurred at
+arcpy.Snap_edit(WO_STOP_1, [
+    snapEnv1, snapEnv2, snapEnv3, snapEnv4, 
+    snapEnv5, snapEnv6, snapEnv7, snapEnv8
+    ])
 
 print "5th Process: Select (2)"
-arcpy.Select_analysis(All_WO, WO_SSO_1, "\"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'CAP' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'DPR' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'GPU' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'PFPU' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'PSF' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'RPU'")
+# Similar to 2nd Process, but selects SSO's instead
+# the output file is WO_SSO_1
+arcpy.Select_analysis(All_WO, WO_SSO_1, "\"CATCODE\" = 'SSO' AND " + 
+    "\"TASKCODE\" = 'CAP' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'DPR' " +
+    "OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'GPU' OR \"CATCODE\" = 'SSO" +
+    "' AND \"TASKCODE\" = 'PFPU' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" " + 
+    "= 'PSF' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'RPU'")
 
 print "6th Process: Snap (2)"
-arcpy.Snap_edit(WO_SSO_1, [snapEnv1, snapEnv2, snapEnv3, snapEnv4, snapEnv5, snapEnv6, snapEnv7, snapEnv8])
-del snapEnv1, snapEnv2, snapEnv3, snapEnv4, snapEnv5, snapEnv6, snapEnv7, snapEnv8
+# Same as 4th process, but on WO_SSO_1 instead
+arcpy.Snap_edit(WO_SSO_1, [
+    snapEnv1, snapEnv2, snapEnv3, snapEnv4, 
+    snapEnv5, snapEnv6, snapEnv7, snapEnv8
+    ])
+
+# This was the last snapping so I am deleting these variables	
+del snapEnv1, snapEnv2, snapEnv3, snapEnv4
+del snapEnv5, snapEnv6, snapEnv7, snapEnv8
 
 print "7th Adding Field mappings"
 # Create a new fieldmappings and add the input feature classes.
@@ -93,7 +127,8 @@ print "7th Adding Field mappings"
 fieldmappings = arcpy.FieldMappings()
 fieldmappings.addTable(Sewer_2_shp)
 
-# Create a single field map of the SSO
+# Create a single field map for the SSO. I just want to know how many SSO's
+# are on the line, so I set merge rule to count
 fieldmap = arcpy.FieldMap()
 fieldmap.addInputField(WO_SSO_1, "JOBORDER")
 fieldmap.mergeRule = "count"
@@ -108,7 +143,10 @@ fieldmap.outputField = field
 fieldmappings.addFieldMap(fieldmap) 
 
 print "8th Process: Spatial Join (1) adding SSO WO" 
-arcpy.SpatialJoin_analysis(Sewer_2_shp, WO_SSO_1, Sewer_SSO_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings)
+# The spatial join creates a new shapefile that has the fields that were 
+# added in the field mappings
+arcpy.SpatialJoin_analysis(Sewer_2_shp, WO_SSO_1, Sewer_SSO_shp,
+    "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings)
 del fieldmappings
 
 print "9th Adding Field mappings"
@@ -132,7 +170,8 @@ fieldmap1.outputField = field1
 fieldmappings1.addFieldMap(fieldmap1) 
 
 print "10th Process: Spatial Join (2) adding STOP WO and adding fields" 
-arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_STOP_1, Sewer_SSO_STOP_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings1)
+arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_STOP_1, Sewer_SSO_STOP_shp,
+    "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings1)
 del fieldmappings1
 
 print "11th Adding Field mappings"
@@ -140,7 +179,8 @@ print "11th Adding Field mappings"
 # This creates field map objects for each field in the sewer file.
 fieldmappings2 = arcpy.FieldMappings()
 fieldmappings2.addTable(Sewer_SSO_STOP_shp)
-print "Before adding fields there are " + str(fieldmappings2.fieldCount) + " fields"
+print "Before adding fields there are " + str(fieldmappings2.fieldCount) \
+    + " fields"
 
 fieldmappings3 = arcpy.FieldMappings()
 
@@ -159,71 +199,147 @@ RC.aliasName = "RM_Count"
 RM_Count.outputField = RC
 
 # Create the field maps to be added to the output
-# There has got to be a better way to do this
-# only way I could figure out...
-fieldmappings3.loadFromString("DaySinRM \"DaySinRM\" true true false 9 Long 0 0 ,First,#;") #,Sewer_2,DaySinRM,-1,-1
-DaySinRM = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("DaySinRM"))
-#print "Field map DaySinRM"
-fieldmappings3.loadFromString("To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#;") #,Sewer_2,To_Water,-1,-1
-To_Water = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("To_Water"))
-#print "Field map To_water"
-fieldmappings3.loadFromString("To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_Road,-1,-1;")
-To_Road = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("To_Road"))
-#print "Field map To_Road"
-fieldmappings3.loadFromString("To_Low_Pub \"To_Low_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_Low_Pub,-1,-1;")
-To_Low_Pub = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("To_Low_Pub"))
-#print "Field map To_Low_Pub"
-fieldmappings3.loadFromString("To_Mod_Pub \"To_Mod_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_Mod_Pub,-1,-1;")
-To_Mod_Pub = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("To_Mod_Pub"))
-#print "Field map To_Mod_Pub"
-fieldmappings3.loadFromString("To_High_Pub \"To_High_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2,To_High_Pub,-1,-1;")
-To_High_Pub = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("To_High_Pub"))
-#print "Field map To_High_Pub"
-fieldmappings3.loadFromString("Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Size,-1,-1;")
-Con_Size = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Con_Size"))
-#print "Field map Con_Size"
-fieldmappings3.loadFromString("Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Water,-1,-1;")
-Con_Water = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Con_Water"))
-#print "Field map Con_Water"
-fieldmappings3.loadFromString("Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Road,-1,-1;")
-Con_Road = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Con_Road"))
-#print "Field map Con_Road"
-fieldmappings3.loadFromString("Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2,Con_Pub,-1,-1;")
-Con_Pub = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Con_Pub"))
-#print "Field map Con_Pub"
-fieldmappings3.loadFromString("Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,Sewer_2,Consequenc,-1,-1;")
-Consequenc = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Consequenc"))
-#print "Field map Consequenc"
-fieldmappings3.loadFromString("WO_Weight \"WO_Weight\" true true false 9 Long 0 9 ,First,#,Sewer_2,WO_Weight,-1,-1;")
-WO_Weight = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("WO_Weight"))
+# There has got to be a better way to do this, but this is the only way I
+# could figure out...
 
-fieldmappings3.loadFromString("Age_Con \"Age_Con\" true true false 9 Long 0 9 ,First,#,Sewer_2,Age_Con,-1,-1;")
-Age_Con = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Age_Con"))
+# Create the individual fields that will be used in future processes, 
+# All field maps created here should be empty and hold long type variables
+#Create DaySinRM
+fieldmappings3.loadFromString(
+    "DaySinRM \"DaySinRM\" true true false 9 Long 0 0 ,First,#;")
+DaySinRM = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("DaySinRM"))
 
-fieldmappings3.loadFromString("Phy_Con \"Phy_Con\" true true false 9 Long 0 9 ,First,#,Sewer_2,Phy_Con,-1,-1;")
-Phy_Con = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Phy_Con"))
+#Create To_Water
+fieldmappings3.loadFromString(
+    "To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#;")
+To_Water = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("To_Water"))
 
-fieldmappings3.loadFromString("Failure_ \"Failure_\" true true false 9 Long 0 9 ,First,#,Sewer_2,Failure_,-1,-1;")
-Failure_  = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Failure_"))
+#Create To_Road
+fieldmappings3.loadFromString(
+    "To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "To_Road,-1,-1;")
+To_Road = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("To_Road"))
 
-fieldmappings3.loadFromString("Fail_Den \"Fail_Den\" true true false 9 Long 0 9 ,First,#,Sewer_2,Fail_Den,-1,-1;")
-Fail_Den = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Fail_Den"))
+#Create To_Low_Pub
+fieldmappings3.loadFromString(
+    "To_Low_Pub \"To_Low_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
+    ",To_Low_Pub,-1,-1;")
+To_Low_Pub = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("To_Low_Pub"))
 
-fieldmappings3.loadFromString("STOP_like \"STOP_like\" true true false 9 Long 0 9 ,First,#,Sewer_2,STOP_like,-1,-1;")
-STOP_like = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("STOP_like"))
+#Create To_Mod_Pub
+fieldmappings3.loadFromString(
+    "To_Mod_Pub \"To_Mod_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
+    ",To_Mod_Pub,-1,-1;")
+To_Mod_Pub = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("To_Mod_Pub"))
 
-fieldmappings3.loadFromString("Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,Sewer_2,Likelihood,-1,-1;")
-Likelihood = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Likelihood"))
+#Create To_High_Pu
+fieldmappings3.loadFromString(
+    "To_High_Pu \"To_High_Pu\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
+    ",To_High_Pu,-1,-1;")
+To_High_Pu = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("To_High_Pu"))
 
-fieldmappings3.loadFromString("Risk \"Risk\" true true false 9 Long 0 9 ,First,#,Sewer_2,Risk,-1,-1;")
-Risk = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex ("Risk"))
+#Create Con_Size
+fieldmappings3.loadFromString(
+    "Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Con_Size,-1,-1;")
+Con_Size = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Con_Size"))
+	
+#Create Con_Water 
+fieldmappings3.loadFromString(
+    "Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Con_Water,-1,-1;")
+Con_Water = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Con_Water"))
+
+#Create Con_Road 
+fieldmappings3.loadFromString(
+    "Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Con_Road,-1,-1;")
+Con_Road = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Con_Road"))
+	
+#Create Con_Pub
+fieldmappings3.loadFromString(
+    "Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Con_Pub,-1,-1;")
+Con_Pub = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Con_Pub"))
+	
+#Create Consequenc
+fieldmappings3.loadFromString(
+    "Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
+    ",Consequenc,-1,-1;")
+Consequenc = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Consequenc"))
+	
+#Create WO_Weight
+fieldmappings3.loadFromString(
+    "WO_Weight \"WO_Weight\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "WO_Weight,-1,-1;")
+WO_Weight = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("WO_Weight"))
+	
+#Create Age_Con 
+fieldmappings3.loadFromString(
+    "Age_Con \"Age_Con\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Age_Con,-1,-1;")
+Age_Con = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Age_Con"))
+	
+#Create Phy_Con
+fieldmappings3.loadFromString(
+    "Phy_Con \"Phy_Con\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Phy_Con,-1,-1;")
+Phy_Con = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Phy_Con"))
+	
+#Create Failure_
+fieldmappings3.loadFromString(
+    "Failure_ \"Failure_\" true true false 9 Long 0 9 ,First,#,Sewer_2," + 
+    "Failure_,-1,-1;")
+Failure_  = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Failure_"))
+	
+#Create Fail_Den
+fieldmappings3.loadFromString(
+    "Fail_Den \"Fail_Den\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Fail_Den,-1,-1;")
+Fail_Den = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Fail_Den"))
+	
+#Create STOP_like
+fieldmappings3.loadFromString(
+    "STOP_like \"STOP_like\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "STOP_like,-1,-1;")
+STOP_like = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("STOP_like"))
+	
+#Create Likelihood
+fieldmappings3.loadFromString(
+    "Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Likelihood,-1,-1;")
+Likelihood = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Likelihood"))
+	
+#Create Risk
+fieldmappings3.loadFromString(
+    "Risk \"Risk\" true true false 9 Long 0 9 ,First,#,Sewer_2,Risk,-1,-1;")
+Risk = fieldmappings3.getFieldMap(
+    fieldmappings3.findFieldMapIndex ("Risk"))
 
 # Add the field map to the field mapping object 
 fieldmappings2.addFieldMap(To_Water) 
 fieldmappings2.addFieldMap(To_Road) 
 fieldmappings2.addFieldMap(To_Low_Pub) 
 fieldmappings2.addFieldMap(To_Mod_Pub) 
-fieldmappings2.addFieldMap(To_High_Pub) 
+fieldmappings2.addFieldMap(To_High_Pu) 
 fieldmappings2.addFieldMap(Comp_Date) 
 fieldmappings2.addFieldMap(DaySinRM) 
 fieldmappings2.addFieldMap(RM_Count) 
@@ -241,38 +357,65 @@ fieldmappings2.addFieldMap(Fail_Den)
 fieldmappings2.addFieldMap(Likelihood) 
 fieldmappings2.addFieldMap(Risk)
 
-print "After adding fields there are " + str(fieldmappings2.fieldCount) + " fields."
+#print "After adding fields there are " + str(fieldmappings2.fieldCount) + " fields."
 
 print "12th Process: Spatial Join"
 ## Field 
-arcpy.SpatialJoin_analysis(Sewer_SSO_STOP_shp, rm, WO_RM_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings2, "SHARE_A_LINE_SEGMENT_WITH", "", "")
+arcpy.SpatialJoin_analysis(
+    Sewer_SSO_STOP_shp, rm, WO_RM_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL",
+    fieldmappings2, "SHARE_A_LINE_SEGMENT_WITH", "", "")
 del fieldmappings2
 del fieldmappings3
 
 print "13th Process: Near (1) how close are the sewers to streams?"
-arcpy.Near_analysis(WO_RM_shp, Streams, "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
+# Adds a field to WO_RM_shp called NEAR_DIST that displays the distance in 
+# feet between WO_RM_shp and the nearest Stream feature
+arcpy.Near_analysis(WO_RM_shp, Streams, "", "NO_LOCATION", "NO_ANGLE",
+    "PLANAR")
 
 print "14th Process: Calculate Field (1)"
-arcpy.CalculateField_management(WO_RM_shp, "To_Water", "!NEAR_DIST!", "PYTHON", "")
+# Pull the numbers from the NEAR_DIST field and use them to fill the
+# currently empty To_Water field
+arcpy.CalculateField_management(WO_RM_shp, "To_Water", "!NEAR_DIST!",
+    "PYTHON", "")
 
 print "15th Process: Near (2) how close are the sewers to Major Roads?"
-arcpy.Near_analysis(WO_RM_shp, MAJOR_ROADS, "", "NO_LOCATION", "NO_ANGLE", "PLANAR")
+# Replaces the NEAR_DIST with a new field of the same name, this time
+# displaying the distance in feet between WO_RM_shp and the nearest major
+# road
+arcpy.Near_analysis(WO_RM_shp, MAJOR_ROADS, "", "NO_LOCATION", "NO_ANGLE",
+    "PLANAR")
 
 print "16th Process: Calculate Field (2)"
-arcpy.CalculateField_management(WO_RM_shp, "To_Road", "!NEAR_DIST!", "PYTHON", "")
+# Pull the numbers from the NEAR_DIST field and use them to fill the
+# currently empty To_Road field
+arcpy.CalculateField_management(WO_RM_shp, "To_Road", "!NEAR_DIST!",
+    "PYTHON", "")
 
 print "17th Process: Select (3) "
-arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp, "state_cd = 'F1' OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
+# I experimented with how to select just comertial and residential areas
+# I ended up using the F and B values in the state cd field, I do not know
+# what these mean, so this could be improved
+arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp, "state_cd = 'F1'" +
+   " OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
 
 print "18th Process: Add Field"
-arcpy.AddField_management(parcels_select_shp,"Type", "TEXT", "", "", "", "","NULLABLE","NON_REQUIRED","")
+# Adding a text field called Type
+arcpy.AddField_management(parcels_select_shp,"Type", "TEXT", "", "", "", "",
+    "NULLABLE","NON_REQUIRED","")
 
 print "20th Create a Update Cursor to update the fields"
+# Create a cursor that lists the features in the parcels file, this allows 
+# the user to iterate through the shapefile
 parcels = arcpy.UpdateCursor(parcels_select_shp)
 
-print "21st Classify the parcels land use type based on legal class, state_cd, and file as name."
+print "21st Classify the parcels land use type based on legal class," \
+    + " state_cd, and file as name."
+# Iterate through parcels and update the Type field based on the values found
+# in other fields, some, like the golf type, I looked at visually and made
+# sure that they were correctly categorized, others, such as the commercial
+# density groups are just a best guess and could be improved
 for p in parcels:
-
     if 'F' in p.state_cd:
         # Park
         if 'PARK' in p.legal_desc:
@@ -298,8 +441,7 @@ for p in parcels:
             p.Type = 'SCHOOL'    
         elif 'SCHOOL DISTRICT' in p.file_as_na:
             p.Type = 'SCHOOL'
-
-         
+        # Commercial Density 
         elif p.Acres > 1:
             p.Type = 'LOW DENSITY COMMERCIAL'
         else:
@@ -311,16 +453,23 @@ for p in parcels:
 
 del parcels	
  
-print "22nd Process: Select (4) the low community impact areas, golf and residential."
-arcpy.Select_analysis(parcels_select_shp, low_com_impact, "\"Type\" = 'GOLF' OR \"Type\" = 'RESIDENTIAL'")
+print "22nd Process: Select (4) the low community impact areas, golf and" \
+    + " residential."
+# Use the new type field and classifications select the parcels that are golf
+# or residential
+arcpy.Select_analysis(parcels_select_shp, low_com_impact, 
+    "\"Type\" = 'GOLF' OR \"Type\" = 'RESIDENTIAL'")
 
 print "23rd Process: Add Field"
-arcpy.AddField_management(low_com_impact,"Mark_Weigh", "LONG", "", "", "", "","NULLABLE","NON_REQUIRED","")
+# Add field for market value weights to the low community impact file
+arcpy.AddField_management(low_com_impact,"Mark_Weigh", "LONG", "", "", "",
+    "","NULLABLE","NON_REQUIRED","")
 
 print "24th Classify the parcels land values to weights"
-
+# Create the cursor to iterate through the low community impact file
 low_parcels = arcpy.UpdateCursor(low_com_impact)
 
+# Fill in the Mark_Weigh field based on the value of the market field
 for p in low_parcels:
     if p.market > 0:
         if p.market < 75000:
@@ -339,11 +488,16 @@ for p in low_parcels:
 
 del low_parcels	
 
-print "25th Process: Select (5) the moderate community impact areas, low density commercial."
-arcpy.Select_analysis(parcels_select_shp, mod_com_impact, "Type = 'LOW DENSITY COMMERCIAL'")
+print "25th Process: Select (5) the moderate community impact areas," + \
+    " low density commercial."
+# Select the low density type parcels and export them as mod_com_impact file
+# These are the moderate community impact parcels
+arcpy.Select_analysis(parcels_select_shp, mod_com_impact,
+    "Type = 'LOW DENSITY COMMERCIAL'")
 
-print """26th Process: Select (6) the high community impact areas: 
-Hospitals, Schools, high density commercial."""
+print "26th Process: Select (6) the high community impact areas: " + \
+    "Hospitals, Schools, high density commercial."
+# 	
 arcpy.Select_analysis(parcels_select_shp, high_com_impact, "Type = 'HOSPITAL' OR Type = 'SCHOOL' OR Type = 'HIGH DENSITY COMMERCIAL'")
 
 print "27th Process: Near (3) are the sewers near the low impact area?"
@@ -555,7 +709,7 @@ for s in sewers2:
         s.Fail_Den = 0
 
 # Weights can be changed, maybe make them variables else where? 
-    s.Likelihood = (.35 * s.Phy_Con) + (.1 * s.Mark_Weigh) + (.05 * s.Age_Con) + (.1 * s.Failure_) + (.3 * s.Fail_Den) + (.1 * s.STOP_like)
+    s.Likelihood = (.35 * s.Phy_Con) + (.1 * s.Mark_Weigh) + (.05 * s.Age_Con) + (.15 * s.Failure_) + (.2 * s.Fail_Den) + (.15 * s.STOP_like)
 
     s.Risk = s.Consequenc * s.Likelihood
     risk_list.append (s.Risk)
