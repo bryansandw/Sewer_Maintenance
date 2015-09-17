@@ -21,16 +21,18 @@ env.workspace = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer"
 # Used to use my database connection, but the layers work and this way other
 # people should hopefully be able to run the script without having to change
 # any of the variables
-
+# Root Directories 
+g4 = "G:\\4_LAYERS\\"
+sss = g4 + "WATER_SERVICES\\SANITARY SEWER SYSTEM\\"
 # This will be used in Process 1
-SS_Lines = "G:\\4_LAYERS\\WATER_SERVICES\\SANITARY SEWER SYSTEM\\COB_SS_LINES (Public).lyr"
+SS_Lines = sss + "COB_SS_LINES (Public).lyr"
 # This will be used in Process 2
-All_WO = "G:\\4_LAYERS\\COB_HTE_WORK_ORDERS.lyr" 
-Streams = "G:\\4_LAYERS\\FEMA\\BRAZOS_FEMA_CREEK_STREAM.lyr"
-MAJOR_ROADS = "G:\\4_LAYERS\\BRAZOS_CENTERLINES(MAJOR ROADS).lyr"
-BCAD_PARCELS = "G:\\4_LAYERS\\BCAD\\BCAD_PARCELS.lyr"
-rm = "G:\\4_LAYERS\\WATER_SERVICES\\SANITARY SEWER SYSTEM\\COB_SS_ROUTINE_MAINTENANCE.lyr"
-MH = "G:\\4_LAYERS\\WATER_SERVICES\\SANITARY SEWER SYSTEM\\COB_SS_MANHOLES.lyr"
+All_WO = g4 + "COB_HTE_WORK_ORDERS.lyr" 
+Streams = g4 + "FEMA\\BRAZOS_FEMA_CREEK_STREAM.lyr"
+MAJOR_ROADS = g4 + "BRAZOS_CENTERLINES(MAJOR ROADS).lyr"
+BCAD_PARCELS = g4 + "BCAD\\BCAD_PARCELS.lyr"
+rm = sss + "COB_SS_ROUTINE_MAINTENANCE.lyr"
+MH = sss + "COB_SS_MANHOLES.lyr"
 
 ### These are output locations for the files that are created and manipulated
 ### many will be deleted a the end of the script
@@ -322,7 +324,7 @@ STOP_like = fieldmappings3.getFieldMap(
 	
 # Create Likelihood
 fieldmappings3.loadFromString(
-    "Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
+    "Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,Sewer_2,"
     "Likelihood,-1,-1;")
 Likelihood = fieldmappings3.getFieldMap(
     fieldmappings3.findFieldMapIndex ("Likelihood"))
@@ -410,7 +412,7 @@ print "20th Create a Update Cursor to update the fields"
 parcels = arcpy.UpdateCursor(parcels_select_shp)
 
 print "21st Classify the parcels land use type based on legal class," \
-    + " state_cd, and file as name."
+    " state_cd, and file as name."
 # Iterate through parcels and update the Type field based on the values found
 # in other fields, some, like the golf type, I looked at visually and made
 # sure that they were correctly categorized, others, such as the commercial
@@ -454,7 +456,7 @@ for p in parcels:
 del parcels	
  
 print "22nd Process: Select (4) the low community impact areas, golf and" \
-    + " residential."
+    " residential."
 # Use the new type field and classifications select the parcels that are golf
 # or residential
 arcpy.Select_analysis(parcels_select_shp, low_com_impact, 
@@ -488,19 +490,19 @@ for p in low_parcels:
 
 del low_parcels	
 
-print "25th Process: Select (5) the moderate community impact areas," + \
+print "25th Process: Select (5) the moderate community impact areas," \
     " low density commercial."
 # Select the low density type parcels and export them as mod_com_impact file
 # These are the moderate community impact parcels
 arcpy.Select_analysis(parcels_select_shp, mod_com_impact,
     "Type = 'LOW DENSITY COMMERCIAL'")
 
-print "26th Process: Select (6) the high community impact areas: " + \
+print "26th Process: Select (6) the high community impact areas: " \
     "Hospitals, Schools, high density commercial."
 # Select the high density type parcels, the hospitals, and the schools and
 # export them as high_com_impact file, these are the high community impact
 # parcels
-arcpy.Select_analysis(parcels_select_shp, high_com_impact, "Type = " + \
+arcpy.Select_analysis(parcels_select_shp, high_com_impact, "Type = " \
     "'HOSPITAL' OR Type = 'SCHOOL' OR Type = 'HIGH DENSITY COMMERCIAL'")
 
 print "27th Process: Near (3) are the sewers near the low impact area?"
@@ -516,7 +518,7 @@ print "28st Process: Calculate Field (3) fill To_Low_Pub with distance."
 arcpy.CalculateField_management(WO_RM_shp, "To_Low_Pub", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "29th Process: Near (3) are the sewers near the moderate community" + \
+print "29th Process: Near (3) are the sewers near the moderate community" \
     " impact area?"
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the mod_com_impact
@@ -530,7 +532,7 @@ print "30th Process: Calculate Field (3)"
 arcpy.CalculateField_management(WO_RM_shp, "To_Mod_Pub", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "31st Process: Near (3) are the sewers near the high community" + \
+print "31st Process: Near (3) are the sewers near the high community" \
     " impact area?"
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the high_com_impact
@@ -772,26 +774,34 @@ for s in sewers2:
 del sewers2
 
 print "Sort list of the risk values to identify the highest risk lines"
-#print risk_list
-sorted_risk = sorted(risk_list, reverse=True)
-#print sorted_risk
+# Sort list of the risk values to identify the highest risk lines
+sorted_risk = sorted(risk_list, reverse = True)
+# Identify the 10th highest risk value
 place_ten = sorted_risk[9]
 
 print """Process: Make Layer where the risk is the same or
 greater than the tenth highest list value"""
+# Define where clause that the Risk is greater than or equal to the 10th
+# risk value
 where_clause = "\"Risk\" >= " + str(place_ten)
+# Make layer of the SS lines that are greater than or equal to the 10th
+# risk value
 arcpy.MakeFeatureLayer_management(Risk_shp, "High_Risk_lyr", where_clause)
+# Copy the layer to make it a feature that process may be run on
 arcpy.CopyFeatures_management("High_Risk_lyr", high_risk_lines)
 
 print """Process: Make Layer where the Manholes 
 are adjacent to the high risk sewer lines"""
+# Create layer version of manholes
 arcpy.MakeFeatureLayer_management(MH, "MH_lyr")
+# Select the manholes that intersect with the high risk sewer lines
 arcpy.SelectLayerByLocation_management("MH_lyr", "INTERSECT",
     "High_Risk_lyr")
+# Copy the selected Manholes as their own feature 
 arcpy.CopyFeatures_management("MH_lyr", target_MH)
 
 print "43rd: Create a Update Cursor to select the lines"
-risky_lines = arcpy.SearchCursor(high_risk_lines)	
+risky_lines = arcpy.SearchCursor(high_risk_lines)
 date = str(datetime.date.today())
 rline_FID_list =[]
 
