@@ -61,7 +61,7 @@ map = env.workspace + "\\Sewer2.mxd"
 high_risk_lines = env.workspace + "\\high_risk_lines.shp"
 risky_line = env.workspace + "\\Target_Line.shp"
 
-print "1st Process: Select Sewer lines less than 12 inches"
+print "1st Process: Select Sewer lines 12 inches or less"
 # This creates selects the SS_Line that are < 12 
 # and outputs the copy as Sewer_2_shp
 # The Mainsize field is string for some reason, so I had to select 
@@ -69,7 +69,8 @@ print "1st Process: Select Sewer lines less than 12 inches"
 arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" = '10'" + 
     " OR \"MAINSIZE\" = '2' OR \"MAINSIZE\" = '2.5' OR " + 
     "\"MAINSIZE\" = '3' OR \"MAINSIZE\" = '4' OR \"MAINSIZE\" = '5.4'"
-    + "	OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'")
+    + "	OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'" +
+    "OR \"MAINSIZE\" = '12'"
 
 print "2nd Process: Select (1)"
 # This creates a shapefile of the work orders (All_WO) that have the 
