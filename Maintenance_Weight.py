@@ -70,7 +70,7 @@ arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" = '10'" +
     " OR \"MAINSIZE\" = '2' OR \"MAINSIZE\" = '2.5' OR " + 
     "\"MAINSIZE\" = '3' OR \"MAINSIZE\" = '4' OR \"MAINSIZE\" = '5.4'"
     + "	OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'" +
-    "OR \"MAINSIZE\" = '12'"
+    "OR \"MAINSIZE\" = '12'")
 
 print "2nd Process: Select (1)"
 # This creates a shapefile of the work orders (All_WO) that have the 
