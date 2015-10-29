@@ -64,13 +64,7 @@ risky_line = env.workspace + "\\Target_Line.shp"
 print "1st Process: Select Sewer lines 12 inches or less"
 # This creates selects the SS_Line that are < 12 
 # and outputs the copy as Sewer_2_shp
-# The Mainsize field is string for some reason, so I had to select 
-# each variable that was less than 12
-arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" = '10'" + 
-    " OR \"MAINSIZE\" = '2' OR \"MAINSIZE\" = '2.5' OR " + 
-    "\"MAINSIZE\" = '3' OR \"MAINSIZE\" = '4' OR \"MAINSIZE\" = '5.4'"
-    + "	OR \"MAINSIZE\" = '6' OR \"MAINSIZE\" = '8' OR \"MAINSIZE\" = '4'" +
-    "OR \"MAINSIZE\" = '12'")
+arcpy.Select_analysis(SS_Lines, Sewer_2_shp, "\"MAINSIZE\" <= 12")
 
 print "2nd Process: Select (1)"
 # This creates a shapefile of the work orders (All_WO) that have the 
@@ -576,8 +570,7 @@ print "37th Process: Optimized Hot Spot Analysis"
 # will abort after finishing running this process.  The Hot Spot analysis is
 # run on the WO_Weight values. 
 arcpy.OptimizedHotSpotAnalysis_stats(SS_buffer_shp, SS_Buffer_HS_shp,
-    "WO_Weight", "COUNT_INCIDENTS_WITHIN_FISHNET_POLYGONS", "", "",
-    Density_Surface)
+    "WO_Weight", "", "", Density_Surface)
 
 print "38th Create field mapping for Spatial Join"
 # Create a new fieldmappings and add the input feature classes.
@@ -619,6 +612,11 @@ Mark_Weigh.addInputField(low_com_imp_buf,"Mark_Weigh")
 Mark_Weigh.mergeRule = "mean"
 fieldmappings5.addFieldMap(Mark_Weigh) 
 
+Mark_Value = arcpy.FieldMap()
+Mark_Value.addInputField(low_com_imp_buf,"market") 
+Mark_Value.mergeRule = "mean"
+fieldmappings5.addFieldMap(Mark_Value) 
+
 print "42nd Process: Spatial Join"
 arcpy.SpatialJoin_analysis(WO_RM_HS_join_shp, low_com_imp_buf, Risk_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings5, "INTERSECT", "", "")
@@ -632,6 +630,8 @@ print "Create list of the risk values to identify the highest risk lines"
 # Create empty list to store risk values in so that the highest risk lines 
 # can be identified 
 risk_list = []
+# Will use the current year to find ages of pipes
+year = datetime.date.today().year
 	
 print "44th: Update fields with weights"
 for s in sewers2:
@@ -721,15 +721,21 @@ for s in sewers2:
     else:
         s.Phy_Con = 1
     # Use the year the line was built to set Age_Con value
-    if s.YEAR > 1981:
+    # The current year is used find lines that are 30 yr old
+    # Age less than 30 years
+    if s.YEAR > year - 30: 
         s.Age_Con = 1
-    elif s.YEAR > 1970 and s.YEAR < 1982:
+    # Age between 30 and 39 years
+    elif s.YEAR > year - 40 and s.YEAR <= year - 30:
         s.Age_Con = 2
-    elif s.YEAR > 1959 and s.YEAR < 1971:
+    # age between 40 and 49 years
+    elif s.YEAR > year - 50 and s.YEAR <= year - 40:
         s.Age_Con = 4
-    elif s.YEAR > 1950 and s.YEAR < 1961:
+    # age between 50 and 59 years
+    elif s.YEAR > year - 60 and s.YEAR <= year - 50:
         s.Age_Con = 7
-    elif s.YEAR < 1951:
+    # age greater than 60 years
+    elif s.YEAR <= year - 60:
        s.Age_Con = 10
     else: 
        s.Phy_Con = 0
@@ -811,8 +817,8 @@ for line in risky_lines:
 del risky_lines
 print rline_FID_list
 
-print """Set up map document environment to create 
-exported map documents as pdfs in map folder"""
+print """Set up map document environment to create exported map documents as
+pdfs in map folder"""
 
 #print slyr.symbology
 #print slyr.symbologyType
@@ -926,5 +932,5 @@ arcpy.Delete_management(low_com_imp_buf, "")
 arcpy.Delete_management(SS_Buffer_HS_shp, "")
 arcpy.Delete_management(WO_RM_HS_join_shp, "")
 #
- 
+
 print "Done!"
