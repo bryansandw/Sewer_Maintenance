@@ -19,8 +19,8 @@ env.workspace = "G:\\GIS_PROJECTS\\WATER_SERVICES\\Tess\\Sewer"
 ##### Local variables: #####
 ### Data from Database will only be copied and not altered ###
 # Used to use my database connection, but the layers work and this way other
-# people should hopefully be able to run the script without having to change
-# any of the variables
+# people in the city should be able to run the script without having to
+# change any of the variables
 # Root Directories 
 g4 = "G:\\4_LAYERS\\"
 sss = g4 + "WATER_SERVICES\\SANITARY SEWER SYSTEM\\"
