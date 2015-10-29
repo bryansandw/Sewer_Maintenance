@@ -1,6 +1,6 @@
 # Implementing a risk based GIS prioritization model to optimize routine maintenance of the sanitary sewer system. 
-Elizabeth Rentschlar1, 
-1 GIS Analyst for Water Distribution, City of Bryan
+Elizabeth Rentschlar, (GIS Analyst for Water Distribution)
+City of Bryan
 10/29/15
 
 ##Abstract:
