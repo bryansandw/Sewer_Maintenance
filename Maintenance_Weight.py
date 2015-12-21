@@ -56,7 +56,7 @@ Risk_shp = env.workspace + "\\Risk.shp"
 maint = env.workspace + "\\Maintenance.lyr"
 target_MH = env.workspace + "\\target_MH.shp"
 map_output_folder = env.workspace + "\\Maps\\"
-map = env.workspace + "\\Sewer2.mxd"
+map_doc = env.workspace + "\\Sewer2.mxd"
 #single_MH_lyr = env.workspace + "\\single_MH.shp"
 high_risk_lines = env.workspace + "\\high_risk_lines.shp"
 risky_line = env.workspace + "\\Target_Line.shp"
@@ -842,7 +842,7 @@ for FID in rline_FID_list:
 	#newlayer = arcpy.mapping.Layer(single_risky_line)
     #arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")
 	
-    mapdoc = arcpy.mapping.MapDocument(map)
+    mapdoc = arcpy.mapping.MapDocument(map_doc)
 
     # need to loop through the target MH
     # May need to loop through based on the FID value???
