@@ -49,7 +49,7 @@ To_Water <= 500 ft	To_Water <= 100 ft	Con_Water
 Disruption to Commuters	Major Roads	10%	To_Road > 50ft and To_Road <= 100ft	To_Road > 20 ft and To_Road <= 50 ft	To_Road > 5 ft and To_Road <= 20 ft	To_Road <= 5 ft	Con_Road
 Impact to Community 	Parcel	20%	Near Open Spaces or Parks 	Near Residential and Golf Courses 	Near Low Density Commercial	Near Hospital, School, High Density Commercial 	Con_Pub
 
-Figure 2. 
+![Figure 2. Likelihood](https://farm2.staticflickr.com/1720/24382560795_7214aca1d0_z.jpg)
 Likelihood
 Dada Used	Weight	1 Value	2 Value	4 Value	7 Value	10 Value	Field Name
 Age Condition	Age of Sewer	5%	Age < 30 yr	30 to 39 yr	40 to 49 yr	50 to 59 yr	Age > 60 yr	Age_Con
@@ -62,7 +62,7 @@ Potential for Stoppage	Size of Sewer	10%	None	MAINSIZE >8 in and MAINSIZE < 12 i
 Table 2 shows the breakdown of the six likelihood categories and the weight assignments and percentages.  
 * Count of WO occurring on line where STOPs are worth 1 point and SSOs are worth 3 point. Ran Hot Spot analysis on the WO_weights.  Gi_Bin is the confidence level that the line is in a statistically significant cluster.
  
-
+![Figure 3. Risk](https://farm2.staticflickr.com/1481/24382561545_727c6f4076_b.jpg)
 
 
 
