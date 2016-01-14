@@ -43,7 +43,7 @@ The pilot began in the last month of FY 2015.  The GIS Analyst would run the pyt
 ![Figure 1. Consequence](http://c2.staticflickr.com/2/1603/23755755583_875ddfdd9e.jpg)
 
 Consequence	| Data Used |	Weight |	1 Values |	4 values |	7 Values |	10 Values |	Field Name
-***********|***********|**********|************|************|***********|************|************
+------------|-----------|--------|----------|----------|----------|-----------|-----------
 Potential for Large SSO	| Size of Sewer |	30%	| MAINSIZE <= 4 in	| MAINSIZE > 4 in and MAINSIZE <= 6 in	| MAINSIZE > 6 in and MAINSIZE <= 8 in	| MAINSIZE > 8 in	 | Con_Size
 Distance to Water	| FEMA Stream 	| 40%	| To_Water > 1000 ft	| To_Water > 500 ft and 
 To_Water <= 1000 ft	| To_Water > 100 ft and 
