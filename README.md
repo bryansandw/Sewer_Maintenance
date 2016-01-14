@@ -1,5 +1,5 @@
 # Implementing a risk based GIS prioritization model to optimize routine maintenance of the sanitary sewer system. 
-Elizabeth Rentschlar, (GIS Analyst for Water Distribution)
+Elizabeth Rentschlar, *GIS Analyst for Water Distribution*
 City of Bryan
 10/29/15
 
@@ -39,6 +39,7 @@ The output maps highlight the segment of the sewer that needs to be cleaned and 
 ##Implementation:
 The pilot began in the last month of FY 2015.  The GIS Analyst would run the python script and manually open and print each pdf map.   The original plan was to provide the Compliance (I&I) Supervisor with the pdf maps every Monday morning, but this was not enough time for the lines to be cleaned and returned to the office staff to be processed before the next set of maps was produced.  2 weeks?  
 
+![Figure 1. Consequence](http://c2.staticflickr.com/2/1603/23755755583_875ddfdd9e.jpg)
 
 Consequence	Data Used	Weight	1 Values	4 values	7 Values	10 Values	Field Name
 Potential for Large SSO	Size of Sewer	30%	MAINSIZE <= 4 in	MAINSIZE > 4 in and MAINSIZE <= 6 in	MAINSIZE > 6 in and MAINSIZE <= 8 in	MAINSIZE > 8 in	Con_Size
