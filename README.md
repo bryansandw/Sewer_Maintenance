@@ -58,13 +58,13 @@ Likelihood | Dada Used	| Weight	| 1 Value	| 2 Value	| 4 Value	| 7 Value	| 10 Val
 Age Condition	| Age of Sewer	| 5%	| Age < 30 yr	| 30 to 39 yr	| 40 to 49 yr	| 50 to 59 yr	| Age > 60 yr	| Age_Con
 Physical Condition	| RM	| 35%	| < 366 days since RM	| 366 - 731 days since RM	| 731 -1097 days since RM	| 1097 -1460 days since RM | 	1460+ days since RM	| Phy_Con
 WO Likelihood	| SSO and STOP WO	| 10%	| None	| 1 STOP	| >= 2 STOPs	| 1 SSO	| >= 2 SSO	| Failure_
-WO Density |	SSO and STOP WO *	| 30%	| Gi_Bin < 0	| Gi_Bin == 0	| Gi_Bin > 0	| Gi_Bin > 1	| Gi_Bin > 2	| Fail_Den
+WO Density |	SSO and STOP WO ***	| 30%	| Gi_Bin < 0	| Gi_Bin == 0	| Gi_Bin > 0	| Gi_Bin > 1	| Gi_Bin > 2	| Fail_Den
 Home Values	| Parcels	| 10%	| Market >= $230,000	| Market < $230,000	| Market < $165,000	| Market < $130,000	| Market < $75,000	| Mark_Weigh
 Potential for Stoppage	| Size of Sewer	| 10%	| None	| MAINSIZE >8 in and MAINSIZE < 12 in | MAINSIZE > 6 in and MAINSIZE < =8 in	| MAINSIZE > 4 in and MAINSIZE < =6 in	| MAINSIZE <= 4 in	| STOP_like
 
 **Table 2.** shows the breakdown of the six likelihood categories and the weight assignments and percentages.  
 
-* Count of WO occurring on line where STOPs are worth 1 point and SSOs are worth 3 point. Ran Hot Spot analysis on the WO_weights.  Gi_Bin is the confidence level that the line is in a statistically significant cluster.
+*** Count of WO occurring on line where STOPs are worth 1 point and SSOs are worth 3 point. Ran Hot Spot analysis on the WO_weights.  Gi_Bin is the confidence level that the line is in a statistically significant cluster.
 
 ##Map Automation:
 The Risk model provides a large amount of information to GIS users with an intermediate skill level with the software, but it requires time to look at the data produced and make decisions based upon it.  To cut down on the amount of time the Compliance (I&I) Supervisor would need to spend examining the data produced by the model it was decide to output the highest risk lines as pdf maps.  There is an ArcMap mxd file that holds the layers symbology and map layout.  The script alters this mxd to create new maps that are exported to a folder.  The scale adjusts based on the size of the sewer line that is being singled out for RM.  
