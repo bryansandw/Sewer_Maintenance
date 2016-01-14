@@ -45,9 +45,7 @@ The pilot began in the last month of FY 2015.  The GIS Analyst would run the pyt
 Consequence	| Data Used |	Weight |	1 Values |	4 values |	7 Values |	10 Values |	Field Name
 ------------|-----------|--------|----------|----------|----------|-----------|-----------
 Potential for Large SSO	| Size of Sewer |	30%	| MAINSIZE <= 4 in	| MAINSIZE > 4 in and MAINSIZE <= 6 in	| MAINSIZE > 6 in and MAINSIZE <= 8 in	| MAINSIZE > 8 in	 | Con_Size
-Distance to Water	| FEMA Stream 	| 40%	| To_Water > 1000 ft	| To_Water > 500 ft and 
-To_Water <= 1000 ft	| To_Water > 100 ft and 
-To_Water <= 500 ft	| To_Water <= 100 ft	| Con_Water
+Distance to Water	| FEMA Stream 	| 40%	| To_Water > 1000 ft	| To_Water > 500 ft and To_Water <= 1000 ft	| To_Water > 100 ft and To_Water <= 500 ft	| To_Water <= 100 ft	| Con_Water
 Disruption to Commuters	| Major Roads	| 10%	| To_Road > 50ft and To_Road <= 100ft	| To_Road > 20 ft and To_Road <= 50 ft	| To_Road > 5 ft and To_Road <= 20 ft	| To_Road <= 5 ft	| Con_Road
 Impact to Community | Parcel	| 20%	| Near Open Spaces or Parks |	Near Residential and Golf Courses |	Near Low Density Commercial	| Near Hospital, School, High Density Commercial |	Con_Pub
 
