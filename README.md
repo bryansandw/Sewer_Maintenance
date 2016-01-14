@@ -47,8 +47,9 @@ The likelihood score quantifies the lines that have a greater likelihood of pres
   6.	The **size of the SS line** is related to the likelihood of the line becoming stopped.  Smaller lines are usually near the ends of the sewer system so have less regular flow; this increases the chance that solids will become lodged in the line creating stoppages so they are given greater weights in determining the size score.  The size score makes up 15% of the likelihood score.
 
 ![Figure 2. Likelihood](https://farm2.staticflickr.com/1720/24382560795_7214aca1d0_z.jpg)
+
 Likelihood | Dada Used	| Weight	| 1 Value	| 2 Value	| 4 Value	| 7 Value	| 10 Value	| Field Name
------------|-----------|-----------|-----------|-----------|-----------|-----------|-----------|-----------
+-----------|------------|---------|---------|---------|---------|---------|-----------|-----------
 Age Condition	| Age of Sewer	| 5%	| Age < 30 yr	| 30 to 39 yr	| 40 to 49 yr	| 50 to 59 yr	| Age > 60 yr	| Age_Con
 Physical Condition	| RM	| 35%	| < 366 days since RM	| 366 - 731 days since RM	| 731 -1097 days since RM	| 1097 -1460 days since RM | 	1460+ days since RM	| Phy_Con
 WO Likelihood	| SSO and STOP WO	| 10%	| None	| 1 STOP	| >= 2 STOPs	| 1 SSO	| >= 2 SSO	| Failure_
