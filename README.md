@@ -1,5 +1,6 @@
 # Implementing a risk based GIS prioritization model to optimize routine maintenance of the sanitary sewer system. 
 Elizabeth Rentschlar, *GIS Analyst for Water Distribution*
+
 City of Bryan
 10/29/15
 
@@ -41,13 +42,14 @@ The pilot began in the last month of FY 2015.  The GIS Analyst would run the pyt
 
 ![Figure 1. Consequence](http://c2.staticflickr.com/2/1603/23755755583_875ddfdd9e.jpg)
 
-Consequence	Data Used	Weight	1 Values	4 values	7 Values	10 Values	Field Name
-Potential for Large SSO	Size of Sewer	30%	MAINSIZE <= 4 in	MAINSIZE > 4 in and MAINSIZE <= 6 in	MAINSIZE > 6 in and MAINSIZE <= 8 in	MAINSIZE > 8 in	Con_Size
-Distance to Water	FEMA Stream 	40%	To_Water > 1000 ft	To_Water > 500 ft and 
-To_Water <= 1000 ft	To_Water > 100 ft and 
-To_Water <= 500 ft	To_Water <= 100 ft	Con_Water
-Disruption to Commuters	Major Roads	10%	To_Road > 50ft and To_Road <= 100ft	To_Road > 20 ft and To_Road <= 50 ft	To_Road > 5 ft and To_Road <= 20 ft	To_Road <= 5 ft	Con_Road
-Impact to Community 	Parcel	20%	Near Open Spaces or Parks 	Near Residential and Golf Courses 	Near Low Density Commercial	Near Hospital, School, High Density Commercial 	Con_Pub
+Consequence	| Data Used |	Weight |	1 Values |	4 values |	7 Values |	10 Values |	Field Name
+***********|***********|**********|************|************|***********|************|************
+Potential for Large SSO	| Size of Sewer |	30%	| MAINSIZE <= 4 in	| MAINSIZE > 4 in and MAINSIZE <= 6 in	| MAINSIZE > 6 in and MAINSIZE <= 8 in	| MAINSIZE > 8 in	 | Con_Size
+Distance to Water	| FEMA Stream 	| 40%	| To_Water > 1000 ft	| To_Water > 500 ft and 
+To_Water <= 1000 ft	| To_Water > 100 ft and 
+To_Water <= 500 ft	| To_Water <= 100 ft	| Con_Water
+Disruption to Commuters	| Major Roads	| 10%	| To_Road > 50ft and To_Road <= 100ft	| To_Road > 20 ft and To_Road <= 50 ft	| To_Road > 5 ft and To_Road <= 20 ft	| To_Road <= 5 ft	| Con_Road
+Impact to Community | Parcel	| 20%	| Near Open Spaces or Parks |	Near Residential and Golf Courses |	Near Low Density Commercial	| Near Hospital, School, High Density Commercial |	Con_Pub
 
 ![Figure 2. Likelihood](https://farm2.staticflickr.com/1720/24382560795_7214aca1d0_z.jpg)
 Likelihood
