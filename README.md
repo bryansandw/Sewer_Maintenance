@@ -28,6 +28,7 @@ The consequence score quantifies what areas a SSO would be the most detrimental 
   4.	**Impacts on the community** are scored 20%, their weights are based on the proximity of the SS to different land use types, for example, lines that are close to schools and hospitals are given higher weights than SS lines near golf courses.
 
 ![Figure 1. Consequence](http://c2.staticflickr.com/2/1603/23755755583_875ddfdd9e.jpg)
+
 **Figure 1.** The Potential for Large SSO, Distance to Water, Disruption to Commuters, and Impact to Community are show on the left and the resulting consequence score is sown on the right.
 
 Consequence	| Data Used |	Weight |	1 Values |	4 values |	7 Values |	10 Values |	Field Name
