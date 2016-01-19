@@ -1,6 +1,6 @@
 # Sewer Maintenance
 ## Configuration instructions
-This script utilizes the ArcPy functions.  Features and attribute names will need to be adjusted to reflect the users data. 
+This script utilizes the ArcPy functions.  Shapefiles, layers, and attribute names will need to be adjusted to reflect the users data. 
 ## Operating instructions
 This script is intended to be run in the PowerShell.
 ## A file manifest (list of files included)
@@ -8,6 +8,7 @@ This script is intended to be run in the PowerShell.
 The MIT License (MIT)
 Copyright (c) 2015 City of Bryan Water Department
 ## Contact information for the distributor or programmer
+Elizabeth Rentschlar
 ## Known bugs
 The hot spot analysis will break the script if run inside of ArcMap.  
 ## Troubleshooting
