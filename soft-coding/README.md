@@ -29,13 +29,16 @@ This dialog box allows you to associate the script obtained from this Git with y
 
 ![Picture6](https://farm2.staticflickr.com/1660/24177535589_9ae8b43e6a_z.jpg)
 
- Go to the location where you saved the script from this Git and open the script.  
+ Go to the location where you saved the script from this Git and open the script.  This will return you to the Add Script window where you may hit next. 
 
 ![Picture7](https://farm2.staticflickr.com/1476/24437009522_404487fb91_z.jpg)
 
-
+This next window is very important.  
 
 ![Picture8](https://farm2.staticflickr.com/1480/23919744373_f12210d3f3_z.jpg)
+
+
+![Picture9](https://farm2.staticflickr.com/1694/24251313160_84e634fb4b_z.jpg)
 
 ## Operating instructions
 
