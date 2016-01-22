@@ -17,6 +17,25 @@ This opens the browsing dialog box.  If you have a pre-existing toolbox you can 
 ![Picture3](https://farm2.staticflickr.com/1479/24436855852_611c22b62c_b.jpg)
 
 ###Step 2. Add script to toolbox
+To add the script as a tool that can be used like any other tool in ArcMap right click on the appropriate toolbox.  Navigate to Add, hovering over Add will bring up more option.  Click on Script.  
+
+![Picture4](https://farm2.staticflickr.com/1527/24545150075_0a9bd0c906_z.jpg)
+
+The dialog box will allow you to name the script and provide descriptive information that can be used to remind you and others in your organization what this script does.   Keep the name short and the other boxes are optional.  Once you have filled out the first three boxes to your satisfaction hit next.  (I have had problems with names with spaces, underscored, or longer than 8 characters.) 
+
+![Picture5](https://farm2.staticflickr.com/1678/23918350863_526d5618c3_z.jpg)
+
+This dialog box allows you to associate the script obtained from this Git with your toolbox.  Click on the folder browser button.
+
+![Picture6](https://farm2.staticflickr.com/1660/24177535589_9ae8b43e6a_z.jpg)
+
+ Go to the location where you saved the script from this Git and open the script.  
+
+![Picture7](https://farm2.staticflickr.com/1476/24437009522_404487fb91_z.jpg)
+
+
+
+![Picture8](https://farm2.staticflickr.com/1480/23919744373_f12210d3f3_z.jpg)
 
 ## Operating instructions
 
@@ -30,4 +49,3 @@ Elizabeth Rentschlar
 The hot spot analysis will break the script if run inside of ArcMap.  
 ## Troubleshooting
 ## Credits and acknowledgments
-
