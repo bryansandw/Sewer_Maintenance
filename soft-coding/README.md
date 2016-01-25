@@ -33,14 +33,30 @@ This dialog box allows you to associate the script obtained from this Git with y
 
 ![Picture7](https://farm2.staticflickr.com/1476/24437009522_404487fb91_z.jpg)
 
-This next window is very important.  
+This next window is very important.  The names that are input will be displayed in the gui tool when accessed through the toolbox to guide users on what information to input. 
 
 ![Picture8](https://farm2.staticflickr.com/1480/23919744373_f12210d3f3_z.jpg)
 
+The data type column provides a dropdown box with a large number of choices on the type of data that the code should be interacting with. 
 
 ![Picture9](https://farm2.staticflickr.com/1694/24251313160_84e634fb4b_z.jpg)
 
-## Operating instructions
+It is important that the display names and the data types are in the same order that they are called in the script found on this git.  Feel free to make the display names fit your data. 
+|GetParameterAsText(#)|Display Name| Data Type|
+|*-|-|-|
+|0|Workspace| Workspace|
+|1|All workorder points|File|
+|2|Streams|File|
+|3|MAJOR ROADS|File|
+|4|BCAD PARCELS|File|
+|5|ROUTINE MAINTENANCE|File|
+|6|MANHOLES|File|
+|7|Select relevant SS lines|SQL Expression|
+|8|Select the STOP WO| SQL Expression |
+|9|Select SSO WO|SQL Expression|
+|10|||
+|11|||
+
 
 ## A file manifest (list of files included)
 ## Copyright and licensing information
