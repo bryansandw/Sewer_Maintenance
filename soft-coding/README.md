@@ -42,20 +42,21 @@ The data type column provides a dropdown box with a large number of choices on t
 ![Picture9](https://farm2.staticflickr.com/1694/24251313160_84e634fb4b_z.jpg)
 
 It is important that the display names and the data types are in the same order that they are called in the script found on this git.  Feel free to make the display names fit your data. 
+
 |GetParameterAsText(#)|Display Name| Data Type|
-|*-|-|-|
-|0|Workspace| Workspace|
-|1|All workorder points|File|
-|2|Streams|File|
-|3|MAJOR ROADS|File|
-|4|BCAD PARCELS|File|
-|5|ROUTINE MAINTENANCE|File|
-|6|MANHOLES|File|
-|7|Select relevant SS lines|SQL Expression|
-|8|Select the STOP WO| SQL Expression |
-|9|Select SSO WO|SQL Expression|
-|10|||
-|11|||
+|---------------------|------------|----------|
+| 0 | Workspace | Workspace |
+| 1 |All workorder points | File |
+| 2 | Streams | File |
+| 3 | MAJOR ROADS | File |
+| 4 | BCAD PARCELS | File |
+| 5 | ROUTINE MAINTENANCE | File |
+| 6 | MANHOLES | File |
+| 7 | Select relevant SS lines | SQL Expression |
+| 8 | Select the STOP WO | SQL Expression |
+| 9 | Select SSO WO | SQL Expression |
+| 10 |  |  |
+| 11 |  |  |
 
 
 ## A file manifest (list of files included)
