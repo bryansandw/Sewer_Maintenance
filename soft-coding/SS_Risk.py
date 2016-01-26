@@ -12,6 +12,7 @@
 from arcpy import env
 import arcpy
 import datetime
+import numpy
 env.overwriteOutput = True
 env.autoCancelling = False
 
@@ -23,35 +24,21 @@ env.workspace = arcpy.GetParameterAsText(0)
 # Used to use my database connection, but the layers work and this way other
 # people in the city should be able to run the script without having to 
 # change any of the variables
-# Root Directories 
-#g4 = "G:\\4_LAYERS\\"
-#sss = g4 + "WATER_SERVICES\\SANITARY SEWER SYSTEM\\"
 # This will be used in Process 1
-SS_Lines = arcpy.GetParameterAsText(1) #sss + "COB_SS_LINES (Public).lyr"
+SS_Lines = arcpy.GetParameterAsText(1) 
 # This will be used in Process 2
-All_WO = arcpy.GetParameterAsText(2) #g4 + "COB_HTE_WORK_ORDERS.lyr" 
-Streams = arcpy.GetParameterAsText(3) #g4 + "FEMA\\BRAZOS_FEMA_CREEK_STREAM.lyr"
-MAJOR_ROADS = arcpy.GetParameterAsText(4) #g4 + "BRAZOS_CENTERLINES(MAJOR ROADS).lyr"
-BCAD_PARCELS = arcpy.GetParameterAsText(5) #g4 + "BCAD\\BCAD_PARCELS.lyr"
-rm = arcpy.GetParameterAsText(6) #sss + "COB_SS_ROUTINE_MAINTENANCE.lyr"
-MH = arcpy.GetParameterAsText(7) #sss + "COB_SS_MANHOLES.lyr"
+All_WO = arcpy.GetParameterAsText(2) 
+Streams = arcpy.GetParameterAsText(3) 
+MAJOR_ROADS = arcpy.GetParameterAsText(4) 
+BCAD_PARCELS = arcpy.GetParameterAsText(5) 
+rm = arcpy.GetParameterAsText(6) 
+MH = arcpy.GetParameterAsText(7) 
 
 ### These are output locations for the files that are created and manipulated
 ### many will be deleted a the end of the script
 Sewer_2_shp = env.workspace + "\\Sewer_2.shp"
 WO_STOP_1 = env.workspace + "\\WO_STOP_1.shp"
 WO_SSO_1 = env.workspace + "\\WO_SSO_1.shp"
-#for regressions
-WO_STOP_post13 = env.workspace + "\\WO_STOP_post13.shp"
-WO_SSO_post13 = env.workspace + "\\WO_SSO_post13.shp"
-STOP_A = env.workspace + "\\WO_STOP_A.shp"
-STOP_B = env.workspace + "\\WO_STOP_B.shp"
-
-#for variables
-WO_STOP_pre14 = env.workspace + "\\WO_STOP_pre14.shp"
-WO_SSO_pre14 = env.workspace + "\\WO_SSO_pre14.shp"
-SSO_A = env.workspace + "\\WO_SSO_A.shp"
-SSO_B = env.workspace + "\\WO_SSO_B.shp"
 
 Sewer_SSO_shp = env.workspace + "\\Sewer_SSO.shp"
 Sewer_SSO_STOP_shp = env.workspace + "\\Sewer_SSO_STOP.shp"
@@ -65,7 +52,8 @@ low_com_imp_buf = env.workspace + "\\low_com_imp_buffer.shp"
 SS_Buffer_HS_shp = env.workspace + "\\SS_Buffer_HS.shp"
 Density_Surface = ""
 WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
-Risk_shp = env.workspace + "\\Risk.shp"
+Risk_shp = env.workspace + "\\Risk_w_fields.shp"
+Risk = arcpy.GetParameterAsText(12)
 #May not use
 maint = env.workspace + "\\Maintenance.lyr"
 target_MH = env.workspace + "\\target_MH.shp"
@@ -162,47 +150,11 @@ arcpy.SpatialJoin_analysis(Sewer_2_shp, WO_SSO_1, Sewer_SSO_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings)
 del fieldmappings
 
-fieldmappings_a = arcpy.FieldMappings()
-fieldmappings_a.addTable(Sewer_SSO_shp)
-
-fieldmap_a = arcpy.FieldMap()
-fieldmap_a.addInputField(WO_SSO_post13, "JOBORDER")
-fieldmap_a.mergeRule = "count"
-
-field_a = fieldmap_a.outputField
-field_a.name = "SSO_Post"
-field_a.aliasName = "SSO_Post"
-fieldmap_a.outputField = field_a
-
-fieldmappings_a.addFieldMap(fieldmap_a) 
-
-arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_SSO_post13, SSO_A,
-    "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings_a)
-del fieldmappings_a
-
-fieldmappings_b = arcpy.FieldMappings()
-fieldmappings_b.addTable(SSO_A)
-
-fieldmap_b = arcpy.FieldMap()
-fieldmap_b.addInputField(WO_SSO_pre14, "JOBORDER")
-fieldmap_b.mergeRule = "count"
-
-field_b = fieldmap_b.outputField
-field_b.name = "SSO_Pre"
-field_b.aliasName = "SSO_Pre"
-fieldmap_b.outputField = field_b
-
-fieldmappings_b.addFieldMap(fieldmap_b) 
-
-arcpy.SpatialJoin_analysis(SSO_A, WO_SSO_pre14, SSO_B,
-    "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings_b)
-del fieldmappings_b
-
 print "9th Adding Field mappings"
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings1 = arcpy.FieldMappings()
-fieldmappings1.addTable(SSO_B)
+fieldmappings1.addTable(Sewer_SSO_shp)
 
 # Create a single field map of the STOP
 fieldmap1 = arcpy.FieldMap()
@@ -219,51 +171,15 @@ fieldmap1.outputField = field1
 fieldmappings1.addFieldMap(fieldmap1) 
 
 print "10th Process: Spatial Join (2) adding STOP WO and adding fields" 
-arcpy.SpatialJoin_analysis(SSO_B, WO_STOP_1, Sewer_SSO_STOP_shp,
+arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_STOP_1, Sewer_SSO_STOP_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings1)
 del fieldmappings1
-
-fieldmappings1_a = arcpy.FieldMappings()
-fieldmappings1_a.addTable(Sewer_SSO_STOP_shp)
-
-fieldmap1_a = arcpy.FieldMap()
-fieldmap1_a.addInputField(WO_SSO_post13, "JOBORDER")
-fieldmap1_a.mergeRule = "count"
-
-field1_a = fieldmap_a.outputField
-field1_a.name = "STOP_Post"
-field1_a.aliasName = "STOP_Post"
-fieldmap1_a.outputField = field1_a
-
-fieldmappings1_a.addFieldMap(fieldmap1_a) 
-
-arcpy.SpatialJoin_analysis(Sewer_SSO_STOP_shp, WO_STOP_post13, STOP_A,
-    "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings1_a)
-del fieldmappings1_a
-
-fieldmappings1_b = arcpy.FieldMappings()
-fieldmappings1_b.addTable(STOP_A)
-
-fieldmap1_b = arcpy.FieldMap()
-fieldmap1_b.addInputField(WO_STOP_pre14, "JOBORDER")
-fieldmap1_b.mergeRule = "count"
-
-field1_b = fieldmap_b.outputField
-field1_b.name = "STOP_Pre"
-field1_b.aliasName = "STOP_Pre"
-fieldmap1_b.outputField = field1_b
-
-fieldmappings1_b.addFieldMap(fieldmap1_b) 
-
-arcpy.SpatialJoin_analysis(STOP_A, WO_STOP_pre14, STOP_B,
-    "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings1_b)
-del fieldmappings1_b
 
 print "11th Adding Field mappings"
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings2 = arcpy.FieldMappings()
-fieldmappings2.addTable(STOP_B)
+fieldmappings2.addTable(Sewer_SSO_STOP_shp)
 print "Before adding fields there are " + str(fieldmappings2.fieldCount) \
     + " fields"
 
@@ -458,7 +374,7 @@ print "After adding fields there are " + str(fieldmappings2.fieldCount) + \
 print "12th Process: Spatial Join"
 ## Field 
 arcpy.SpatialJoin_analysis(
-    STOP_B, rm, WO_RM_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL",
+    Sewer_SSO_STOP_shp, rm, WO_RM_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL",
     fieldmappings2, "SHARE_A_LINE_SEGMENT_WITH", "", "")
 del fieldmappings2
 del fieldmappings3
@@ -489,11 +405,12 @@ arcpy.CalculateField_management(WO_RM_shp, "To_Road", "!NEAR_DIST!",
     "PYTHON", "")
 
 print "17th Process: Select (3) "
-# I experimented with how to select just comertial and residential areas
+# I experimented with how to select just commercial and residential areas
 # I ended up using the F and B values in the state cd field, I do not know
 # what these mean, so this could be improved
-arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp, "state_cd = 'F1'" +
-   " OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
+arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp,
+    arcpy.GetParameterAsText(11))
+#"state_cd = 'F1' OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
 
 print "18th Process: Add Field"
 # Adding a text field called Type
@@ -511,6 +428,9 @@ print "21st Classify the parcels land use type based on legal class," \
 # in other fields, some, like the golf type, I looked at visually and made
 # sure that they were correctly categorized, others, such as the commercial
 # density groups are just a best guess and could be improved
+
+# This is a problem for my soft code!
+# Need to address
 for p in parcels:
     if 'F' in p.state_cd:
         # Park
@@ -561,6 +481,27 @@ print "23rd Process: Add Field"
 arcpy.AddField_management(low_com_impact,"Mark_Weigh", "LONG", "", "", "",
     "","NULLABLE","NON_REQUIRED","")
 
+# Make list of home values and find division points of 6 catigories
+home_value = []
+l_parcels = arcpy.SearchCursor(low_com_impact)	
+for lp in l_parcels:
+    home_value.append(lp.market)
+del l_parcels	
+home_value_sort = sorted(home_value)
+list_len = len(home_value_sort)
+fifth_1 = list_len/6
+fifth_2 = fifth_1 * 2
+fifth_3 = fifth_1 * 3
+fifth_4 = fifth_1 * 4
+fifth_5 = fifth_1 * 5
+
+home_arr = numpy.array(home_value_sort)
+lowest_home = home_arr[fifth_1]
+low_home = home_arr[fifth_2]
+med_home = home_arr[fifth_3]
+high_home = home_arr[fifth_4]
+highest_home = home_arr[fifth_5]
+
 print "24th Classify the parcels land values to weights"
 # Create the cursor to iterate through the low community impact file
 low_parcels = arcpy.UpdateCursor(low_com_impact)
@@ -568,13 +509,13 @@ low_parcels = arcpy.UpdateCursor(low_com_impact)
 # Fill in the Mark_Weigh field based on the value of the market field
 for p in low_parcels:
     if p.market > 0:
-        if p.market < 75000:
+        if p.market < lowest_home:
             p.Mark_Weigh = 10
-        elif p.market < 130000:
+        elif p.market < low_home:
             p.Mark_Weigh = 7
-        elif p.market < 165000:
+        elif p.market < med_home:
             p.Mark_Weigh = 4
-        elif p.market < 230000:
+        elif p.market < ((high_home + highest_home) / 2 ):
             p.Mark_Weigh = 2   
         else:
             p.Mark_Weigh = 1  
@@ -649,7 +590,7 @@ print "34th Process: Calculate Field (4) WO_Weight"
 # 3 and the number in the STOP_Count field.  This will be used later to find
 # the WO hot spots, SSOs are more important, which is why they are weighted 
 arcpy.CalculateField_management(WO_RM_shp, "WO_Weight", 
-    "(!SSO_Pre! * 3) + !STOP_Pre!", "PYTHON", "")
+    "(!SSO_Count! * 3) + !STOP_Count!", "PYTHON", "")
 
 print "35th Process: Buffer"
 # Hot Spot analysis can not be performer on polylines, so a buffer is
@@ -723,7 +664,7 @@ del fieldmappings5
 
 print "43rd: Create a Update Cursor to update the fields"
 # Create a cursor to iterate through the risk file
-sewers2 = arcpy.UpdateCursor(Risk_shp)	
+sewers2 = arcpy.UpdateCursor(Risk_shp)
 
 print "Create list of the risk values to identify the highest risk lines"
 # Create empty list to store risk values in so that the highest risk lines 
@@ -733,6 +674,8 @@ risk_list = []
 year = datetime.date.today().year
 	
 print "44th: Update fields with weights"
+
+
 for s in sewers2:
 
     # print "Main size is " + s.MAINSIZE
@@ -806,6 +749,7 @@ for s in sewers2:
         s.Con_Pub = 1
 
     # Weights can be changed, maybe make them variables else where? 
+    #    arcpy.GetParameterAsText(12))
     s.Consequenc = (.3 * s.Con_Size) + (.4 * s.Con_Water) + \
         (.1 * s.Con_Road) + (.2 * s.Con_Pub)
     # Use the number of days since RM occurred to set phy_con value
@@ -839,15 +783,15 @@ for s in sewers2:
     else: 
        s.Phy_Con = 0
     # Use the number of STOPs or SSOs to set the Failure_ value
-    if s.SSO_Pre > 1:
+    if s.SSO_Count > 1:
         s.Failure_ = 10
-    elif s.SSO_Pre > 0 and s.SSO_Pre < 2:
+    elif s.SSO_Count > 0 and s.SSO_Count < 2:
         s.Failure_ = 7
-    elif s.STOP_Pre > 1:
+    elif s.STOP_Count > 1:
         s.Failure_ = 4
-    elif s.STOP_Pre > 0 and s.STOP_Pre < 2:
+    elif s.STOP_Count > 0 and s.STOP_Count < 2:
         s.Failure_ = 2
-    elif s.STOP_Pre < 1 and s.SSO_Pre < 1:
+    elif s.STOP_Count < 1 and s.SSO_Count < 1:
        s.Failure_ = 1
     else: 
        s.Failure_ = 0  
@@ -878,3 +822,8 @@ for s in sewers2:
 	
     sewers2.updateRow(s)
 del sewers2
+
+dropFields = ["Join_Count", "TARGET_FID", "Join_Cou_1", "TARGET_F_1",
+              "Join_Cou_2", "TARGET_F_2", "Join_Cou_3", "TARGET_F_3",
+              "Join_Cou_4", "TARGET_F_4"]
+arcpy.DeleteField_management(Risk, Risk_shp)
