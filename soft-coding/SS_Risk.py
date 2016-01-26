@@ -32,7 +32,7 @@ Streams = arcpy.GetParameterAsText(3)
 MAJOR_ROADS = arcpy.GetParameterAsText(4) 
 BCAD_PARCELS = arcpy.GetParameterAsText(5) 
 rm = arcpy.GetParameterAsText(6) 
-MH = arcpy.GetParameterAsText(7) 
+#MH = arcpy.GetParameterAsText(7) 
 
 ### These are output locations for the files that are created and manipulated
 ### many will be deleted a the end of the script
@@ -52,24 +52,20 @@ low_com_imp_buf = env.workspace + "\\low_com_imp_buffer.shp"
 SS_Buffer_HS_shp = env.workspace + "\\SS_Buffer_HS.shp"
 Density_Surface = ""
 WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
-Risk_shp = env.workspace + "\\Risk_w_fields.shp"
-Risk = arcpy.GetParameterAsText(12)
-#May not use
-maint = env.workspace + "\\Maintenance.lyr"
-target_MH = env.workspace + "\\target_MH.shp"
-map_output_folder = env.workspace + "\\Maps\\"
-map = env.workspace + "\\Sewer2.mxd"
-#single_MH_lyr = env.workspace + "\\single_MH.shp"
-high_risk_lines = env.workspace + "\\high_risk_lines.shp"
-risky_line = env.workspace + "\\Target_Line.shp"
+#Risk_shp = env.workspace + "\\Risk.shp"
+Risk_shp = arcpy.GetParameterAsText(12)
 
-print "1st Process: Select Sewer lines 12 inches or less"
+
 # This creates selects the SS_Line that are < 12 
 # and outputs the copy as Sewer_2_shp
-arcpy.Select_analysis(SS_Lines, Sewer_2_shp, arcpy.GetParameterAsText(8)) 
+MAINSIZE = arcpy.GetParameter(7)
+SIZE = arcpy.GetParameterAsText(8)
+arcpy.SetProgressorLabel("Select Sewer lines " + SIZE + " inches or less")
+SQL = str(MAINSIZE) + " <= " + str(SIZE)
+arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL) 
     #"\"MAINSIZE\" <= 12"
 
-print "2nd Process: Select (1)"
+arcpy.SetProgressorLabel("Select STOPs")
 # This creates a shapefile of the work orders (All_WO) that have the 
 # CATCODE STOP and the TASKCODE USG ect... and out puts the points 
 # As WO_STOP_1
@@ -78,7 +74,7 @@ arcpy.Select_analysis(All_WO, WO_STOP_1, arcpy.GetParameterAsText(9))
     #"\"TASKCODE\" = 'USG' OR \"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'US'"
     #+ " OR \"CATCODE\" = 'STOP' AND\"TASKCODE\" = 'USR'")
 
-print "3rd define snapping environments"
+arcpy.SetProgressorLabel("Define snapping environments")
 # The snapping environments set the rules for how the snap 
 # function will snap features together
 snapEnv1 = [SS_Lines, "EDGE", '50 Feet']
@@ -90,7 +86,7 @@ snapEnv6 = [SS_Lines, "EDGE", '300 Feet']
 snapEnv7 = [SS_Lines, "EDGE", '350 Feet']
 snapEnv8 = [SS_Lines, "EDGE", '400 Feet']
 
-print "4th Process: Snap (1)"
+arcpy.SetProgressorLabel("Snap STOPs to Sewer")
 # The copy of the sewer STOP work orders are snapped to the sewer lines, by
 # starting at 50 ft and working out at 50 ft intervals, the hope is that the
 # majority of the WO points will end up snapped to the line where the wo 
@@ -101,7 +97,7 @@ arcpy.Snap_edit(WO_STOP_1, [
     snapEnv5, snapEnv6, snapEnv7, snapEnv8
     ])
 
-print "5th Process: Select (2)"
+arcpy.SetProgressorLabel("Select SSOs")
 # Similar to 2nd Process, but selects SSO's instead the output file is
 # WO_SSO_1
 arcpy.Select_analysis(All_WO, WO_SSO_1, arcpy.GetParameterAsText(10))
@@ -111,7 +107,7 @@ arcpy.Select_analysis(All_WO, WO_SSO_1, arcpy.GetParameterAsText(10))
     #"' AND \"TASKCODE\" = 'PFPU' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" " + 
     #"= 'PSF' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'RPU'")
 	
-print "6th Process: Snap (2)"
+arcpy.SetProgressorLabel("Snap SSOs to sewer")
 # Same as 4th process, but on WO_SSO_1 instead
 arcpy.Snap_edit(WO_SSO_1, [
     snapEnv1, snapEnv2, snapEnv3, snapEnv4, 
@@ -122,7 +118,7 @@ arcpy.Snap_edit(WO_SSO_1, [
 del snapEnv1, snapEnv2, snapEnv3, snapEnv4
 del snapEnv5, snapEnv6, snapEnv7, snapEnv8
 
-print "7th Adding Field mappings"
+arcpy.SetProgressorLabel("Adding Field mappings")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings = arcpy.FieldMappings()
@@ -143,14 +139,14 @@ fieldmap.outputField = field
 # Add the field map to the field mapping object 
 fieldmappings.addFieldMap(fieldmap) 
 
-print "8th Process: Spatial Join (1) adding SSO WO" 
+arcpy.SetProgressorLabel("Spatial Join adding SSO WO to Sewer")
 # The spatial join creates a new shapefile that has the fields that were 
 # added in the field mappings
 arcpy.SpatialJoin_analysis(Sewer_2_shp, WO_SSO_1, Sewer_SSO_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings)
 del fieldmappings
 
-print "9th Adding Field mappings"
+arcpy.SetProgressorLabel("Adding Field mappings")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings1 = arcpy.FieldMappings()
@@ -170,18 +166,18 @@ fieldmap1.outputField = field1
 # Add the field map to the field mapping object 
 fieldmappings1.addFieldMap(fieldmap1) 
 
-print "10th Process: Spatial Join (2) adding STOP WO and adding fields" 
+arcpy.SetProgressorLabel("Spatial Join adding STOP WO and adding fields")
 arcpy.SpatialJoin_analysis(Sewer_SSO_shp, WO_STOP_1, Sewer_SSO_STOP_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings1)
 del fieldmappings1
 
-print "11th Adding Field mappings"
+arcpy.SetProgressorLabel("Adding Field mappings")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings2 = arcpy.FieldMappings()
 fieldmappings2.addTable(Sewer_SSO_STOP_shp)
-print "Before adding fields there are " + str(fieldmappings2.fieldCount) \
-    + " fields"
+arcpy.SetProgressorLabel("Before adding fields there are " +  \
+    str(fieldmappings2.fieldCount) + " fields")
 
 fieldmappings3 = arcpy.FieldMappings()
 
@@ -343,35 +339,11 @@ field_list = [To_Water, To_Road, To_Low_Pub, To_Mod_Pub, To_High_Pu,
 
 for f_l in field_list: 
     fieldmappings2.addFieldMap(f_l)
-	
-'''
-fieldmappings2.addFieldMap(To_Water) 
-fieldmappings2.addFieldMap(To_Road) 
-fieldmappings2.addFieldMap(To_Low_Pub) 
-fieldmappings2.addFieldMap(To_Mod_Pub) 
-fieldmappings2.addFieldMap(To_High_Pu) 
-fieldmappings2.addFieldMap(Comp_Date) 
-fieldmappings2.addFieldMap(DaySinRM) 
-fieldmappings2.addFieldMap(RM_Count) 
-fieldmappings2.addFieldMap(Con_Size) 
-fieldmappings2.addFieldMap(Con_Water) 
-fieldmappings2.addFieldMap(Con_Road)
-fieldmappings2.addFieldMap(Con_Pub) 
-fieldmappings2.addFieldMap(Consequenc)
-fieldmappings2.addFieldMap(WO_Weight) 
-fieldmappings2.addFieldMap(STOP_like)
-fieldmappings2.addFieldMap(Phy_Con)
-fieldmappings2.addFieldMap(Age_Con)
-fieldmappings2.addFieldMap(Failure_) 
-fieldmappings2.addFieldMap(Fail_Den)
-fieldmappings2.addFieldMap(Likelihood) 
-fieldmappings2.addFieldMap(Risk)
-'''
 
-print "After adding fields there are " + str(fieldmappings2.fieldCount) + \
-    " fields."
+arcpy.SetProgressorLabel("After adding fields there are " +  \
+    str(fieldmappings2.fieldCount) + " fields.")
 
-print "12th Process: Spatial Join"
+arcpy.SetProgressorLabel("Spatial Join")
 ## Field 
 arcpy.SpatialJoin_analysis(
     Sewer_SSO_STOP_shp, rm, WO_RM_shp, "JOIN_ONE_TO_ONE", "KEEP_ALL",
@@ -379,32 +351,32 @@ arcpy.SpatialJoin_analysis(
 del fieldmappings2
 del fieldmappings3
 
-print "13th Process: Near (1) how close are the sewers to streams?"
+arcpy.SetProgressorLabel("Near how close are the sewers to streams?")
 # Adds a field to WO_RM_shp called NEAR_DIST that displays the distance in 
 # feet between WO_RM_shp and the nearest Stream feature
 arcpy.Near_analysis(WO_RM_shp, Streams, "", "NO_LOCATION", "NO_ANGLE",
     "PLANAR")
 
-print "14th Process: Calculate Field (1)"
+arcpy.SetProgressorLabel("Calculate To_Water Field")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_Water field
 arcpy.CalculateField_management(WO_RM_shp, "To_Water", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "15th Process: Near (2) how close are the sewers to Major Roads?"
+arcpy.SetProgressorLabel("Near how close are the sewers to Major Roads?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the nearest major
 # road
 arcpy.Near_analysis(WO_RM_shp, MAJOR_ROADS, "", "NO_LOCATION", "NO_ANGLE",
     "PLANAR")
 
-print "16th Process: Calculate Field (2)"
+arcpy.SetProgressorLabel("Calculate To_Road Field")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_Road field
 arcpy.CalculateField_management(WO_RM_shp, "To_Road", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "17th Process: Select (3) "
+arcpy.SetProgressorLabel("Select commercial and residential")
 # I experimented with how to select just commercial and residential areas
 # I ended up using the F and B values in the state cd field, I do not know
 # what these mean, so this could be improved
@@ -412,18 +384,18 @@ arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp,
     arcpy.GetParameterAsText(11))
 #"state_cd = 'F1' OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
 
-print "18th Process: Add Field"
+arcpy.SetProgressorLabel("Add Field Type")
 # Adding a text field called Type
 arcpy.AddField_management(parcels_select_shp,"Type", "TEXT", "", "", "", "",
     "NULLABLE","NON_REQUIRED","")
 
-print "20th Create a Update Cursor to update the fields"
+arcpy.SetProgressorLabel("Create a Update Cursor to update the fields")
 # Create a cursor that lists the features in the parcels file, this allows 
 # the user to iterate through the shapefile
 parcels = arcpy.UpdateCursor(parcels_select_shp)
 
-print "21st Classify the parcels land use type based on legal class," \
-    " state_cd, and file as name."
+arcpy.SetProgressorLabel("Classify the parcels land use type based on legal class," \
+    " state_cd, and file as name.")
 # Iterate through parcels and update the Type field based on the values found
 # in other fields, some, like the golf type, I looked at visually and made
 # sure that they were correctly categorized, others, such as the commercial
@@ -469,14 +441,14 @@ for p in parcels:
 
 del parcels	
  
-print "22nd Process: Select (4) the low community impact areas, golf and" \
-    " residential."
+arcpy.SetProgressorLabel("Select the low community impact areas, golf and" \
+    " residential.")
 # Use the new type field and classifications select the parcels that are golf
 # or residential
 arcpy.Select_analysis(parcels_select_shp, low_com_impact, 
     "\"Type\" = 'GOLF' OR \"Type\" = 'RESIDENTIAL'")
 
-print "23rd Process: Add Field"
+arcpy.SetProgressorLabel("23rd Process: Add Field Mark_Weight")
 # Add field for market value weights to the low community impact file
 arcpy.AddField_management(low_com_impact,"Mark_Weigh", "LONG", "", "", "",
     "","NULLABLE","NON_REQUIRED","")
@@ -502,7 +474,7 @@ med_home = home_arr[fifth_3]
 high_home = home_arr[fifth_4]
 highest_home = home_arr[fifth_5]
 
-print "24th Classify the parcels land values to weights"
+arcpy.SetProgressorLabel("Classify the parcels land values to weights")
 # Create the cursor to iterate through the low community impact file
 low_parcels = arcpy.UpdateCursor(low_com_impact)
 
@@ -532,87 +504,87 @@ print "25th Process: Select (5) the moderate community impact areas," \
 arcpy.Select_analysis(parcels_select_shp, mod_com_impact,
     "Type = 'LOW DENSITY COMMERCIAL'")
 
-print "26th Process: Select (6) the high community impact areas: " \
+arcpy.SetProgressorLabel("Select the high community impact areas: " \
     "Hospitals, Schools, high density commercial."
 # Select the high density type parcels, the hospitals, and the schools and
 # export them as high_com_impact file, these are the high community impact
 # parcels
-arcpy.Select_analysis(parcels_select_shp, high_com_impact, "Type = " \
-    "'HOSPITAL' OR Type = 'SCHOOL' OR Type = 'HIGH DENSITY COMMERCIAL'")
+arcpy.Select_analysis(parcels_select_shp, high_com_impact, 
+    "Type = 'HOSPITAL' OR Type = 'SCHOOL' OR Type = 'HIGH DENSITY COMMERCIAL'")
 
-print "27th Process: Near (3) are the sewers near the low impact area?"
+arcpy.SetProgressorLabel("Near are the sewers near the low impact area?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the low_com_impact
 # parcels
 arcpy.Near_analysis(WO_RM_shp, low_com_impact, "", "NO_LOCATION", "NO_ANGLE",
     "PLANAR")
 
-print "28th Process: Calculate Field (3) fill To_Low_Pub with distance."
+arcpy.SetProgressorLabel("Calculate Field fill To_Low_Pub with distance.")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_Low_Pub field
 arcpy.CalculateField_management(WO_RM_shp, "To_Low_Pub", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "29th Process: Near (3) are the sewers near the moderate community" \
-    " impact area?"
+arcpy.SetProgressorLabel("Near are the sewers near the moderate community" \
+    " impact area?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the mod_com_impact
 # parcels
 arcpy.Near_analysis(WO_RM_shp, mod_com_impact, "", "NO_LOCATION", "NO_ANGLE",
     "PLANAR")
 
-print "30th Process: Calculate Field (3)"
+arcpy.SetProgressorLabel("Calculate Field")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_Mod_Pub field
 arcpy.CalculateField_management(WO_RM_shp, "To_Mod_Pub", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "31st Process: Near (3) are the sewers near the high community" \
-    " impact area?"
+arcpy.SetProgressorLabel("Near are the sewers near the high community" \
+    " impact area?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the high_com_impact
 # parcels
 arcpy.Near_analysis(WO_RM_shp, high_com_impact, "", "NO_LOCATION",
     "NO_ANGLE", "PLANAR")
 
-print "32nd Process: Calculate Field (3)"
+arcpy.SetProgressorLabel("Calculate Field")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_High_Pu field
 arcpy.CalculateField_management(WO_RM_shp, "To_High_Pu", "!NEAR_DIST!",
     "PYTHON", "")
 
-print "33rd Process: Delete Field"
+arcpy.SetProgressorLabel("Delete Field")
 # Deleting the fields that will no logger be needed 
 arcpy.DeleteField_management(WO_RM_shp, "NEAR_FID;NEAR_DIST")
 
-print "34th Process: Calculate Field (4) WO_Weight"
+arcpy.SetProgressorLabel("Calculate Field WO_Weight")
 # Fill the WO_Weight field with the sum of the SSO_Count field multiplied by
 # 3 and the number in the STOP_Count field.  This will be used later to find
 # the WO hot spots, SSOs are more important, which is why they are weighted 
 arcpy.CalculateField_management(WO_RM_shp, "WO_Weight", 
     "(!SSO_Count! * 3) + !STOP_Count!", "PYTHON", "")
 
-print "35th Process: Buffer"
+arcpy.SetProgressorLabel("Buffer 50ft from RM")
 # Hot Spot analysis can not be performer on polylines, so a buffer is
 # performed with a 50 ft radius and output as SS_Buffer_shp
 arcpy.Buffer_analysis(WO_RM_shp, SS_buffer_shp, "50 Feet", "FULL", "ROUND",
     "NONE", "")
 
-print "36th Process: Buffer"
+arcpy.SetProgressorLabel("Buffer 50ft from low community impact")
 # The output, low_com_imp_buff, will be used later to determine the relative
 # values of the residential areas that feed sewer lines, many sewer lines 
 # are not in the parcels themselves, but are in the public areas near parcels
 arcpy.Buffer_analysis(low_com_impact, low_com_imp_buf, "50 Feet", "FULL", 
     "ROUND", "NONE", "")
 
-print "37th Process: Optimized Hot Spot Analysis"
+arcpy.SetProgressorLabel("Optimized Hot Spot Analysis")
 # If the Hot Spot Analysis is run in ArcMap or ArcCataloge the python script
 # will abort after finishing running this process.  The Hot Spot analysis is
 # run on the WO_Weight values. 
 arcpy.OptimizedHotSpotAnalysis_stats(SS_buffer_shp, SS_Buffer_HS_shp,
     "WO_Weight", "", "", Density_Surface)
 
-print "38th Create field mapping for Spatial Join"
+arcpy.SetProgressorLabel("Create field mapping for Spatial Join")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings4 = arcpy.FieldMappings()
@@ -622,7 +594,7 @@ Gi_Bin.addInputField(SS_Buffer_HS_shp,"Gi_Bin")
 Gi_Bin.mergeRule = "first"
 fieldmappings4.addFieldMap(Gi_Bin) 
 
-print "39th Process: Spatial Join"
+arcpy.SetProgressorLabel("Spatial Join")
 # The results of the Hot Spot analysis are added to the WO_RM_shp file with
 # the spatial join.  This is needed to return the format to a polyline 
 # format instead of a polygon format. 
@@ -630,7 +602,7 @@ arcpy.SpatialJoin_analysis(WO_RM_shp, SS_Buffer_HS_shp, WO_RM_HS_join_shp,
     "JOIN_ONE_TO_ONE", "KEEP_COMMON", fieldmappings4, "INTERSECT", "", "")
 del fieldmappings4
 
-print "40th create Cursor find the number of days since RM took place" 
+arcpy.SetProgressorLabel("Create Cursor find the number of days since RM took place")
 maintenance = arcpy.UpdateCursor(WO_RM_HS_join_shp)
 
 for m in maintenance:
@@ -642,7 +614,7 @@ for m in maintenance:
     maintenance.updateRow(m)
 del maintenance
 
-print "41st Create field mapping for Spatial Join"
+arcpy.SetProgressorLabel("Create field mapping for Spatial Join")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
 fieldmappings5 = arcpy.FieldMappings()
@@ -662,18 +634,18 @@ arcpy.SpatialJoin_analysis(WO_RM_HS_join_shp, low_com_imp_buf, Risk_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings5, "INTERSECT", "", "")
 del fieldmappings5
 
-print "43rd: Create a Update Cursor to update the fields"
+arcpy.SetProgressorLabel("Create a Update Cursor to update the fields")
 # Create a cursor to iterate through the risk file
 sewers2 = arcpy.UpdateCursor(Risk_shp)
 
-print "Create list of the risk values to identify the highest risk lines"
+arcpy.SetProgressorLabel("Create list of the risk values to identify the highest risk lines")
 # Create empty list to store risk values in so that the highest risk lines 
 # can be identified 
 risk_list = []
 # Will use the current year to find ages of pipes
 year = datetime.date.today().year
 	
-print "44th: Update fields with weights"
+arcpy.SetProgressorLabel("Update fields with weights")
 
 
 for s in sewers2:
@@ -826,4 +798,14 @@ del sewers2
 dropFields = ["Join_Count", "TARGET_FID", "Join_Cou_1", "TARGET_F_1",
               "Join_Cou_2", "TARGET_F_2", "Join_Cou_3", "TARGET_F_3",
               "Join_Cou_4", "TARGET_F_4"]
-arcpy.DeleteField_management(Risk, Risk_shp)
+arcpy.DeleteField_management(Risk_shp, dropFields)
+
+### Delete Shapefiles that are no longer needed ### 
+#arcpy.Delete_management(out_data, "")
+toDelete = [Sewer_2_shp, WO_STOP_1, WO_SSO_1, Sewer_SSO_shp,
+        Sewer_SSO_STOP_shp, parcels_select_shp, low_com_impact,
+        mod_com_impact, high_com_impact, WO_RM_shp, SS_buffer_shp,
+        WO_RM_HS_join_shp]
+ 
+for file in toDelete:
+    arcpy.Delete_management(file, "")
