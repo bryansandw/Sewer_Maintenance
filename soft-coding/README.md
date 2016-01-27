@@ -60,6 +60,9 @@ It is important that the display names and the data types are in the same order 
 | 12    | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
 | 13    | Risk         | File      | Output    | shp    |           |
 
+If you have correctly filled out the properties table the GUI tool interface should look like any other tool you might use in ArcMap with dropdowns with the shapefiles in the map document and the appropriate fields in the in th efield drop downs and the SQL builders.
+
+![Picture10](http://farm2.staticflickr.com/1590/24286498929_388a3cfb91_b.jpg)
 
 
 ## A file manifest (list of files included)
