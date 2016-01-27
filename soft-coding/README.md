@@ -45,21 +45,20 @@ It is important that the display names and the data types are in the same order 
 
 | Index | Display Name | Data Type | Direction | Filter | Obtained from |
 |*------|*------------*|*---------*|*---------*|*------*|*-------------*|
-| 0     | Workspace    | Workspace | Input     | I used File System |   |
-| 1     | Sewer Lines  | Feature Layer | Input | Polyline |             |
-| 2     | All work order points | Feature Layer | Input | Point |       |
-| 3     | Streams      | Feature Layer | Input | Polyline |             |
-| 4     | MAJOR ROADS  | Feature Layer | Input | Polyline |             |
-| 5     | Parcels      | Feature Layer | Input | Polygon |              |
-| 6     | ROUTINE MAINTENANCE | Feature Layer | Input | Polyline |      |
-| 7     | Sewer Diameter Field | Field | Input |        | Sewer Lines   |
-| 8     | Sewer Diameter Field | Field | Input |        | Sewer Lines   |
-| 9     | Largest Sewer Diameter | String | Input |     |               | 
-| 10    | Select the STOP WO| SQL Expression | Input |  | work order    |
-| 11    | Select SSO WO | SQL Expression | Input |      | work order    |
-| 12    | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
-| 13    | Risk         | File      | Output    | shp    |               |
-
+| 0     | Workspace    | Workspace | Input     | I used File System | None   |
+| 1     | Sewer Lines  | Feature Layer | Input | Polyline | None        |
+| 2     | All work order points | Feature Layer | Input | Point | None  |
+| 3     | Streams      | Feature Layer | Input | Polyline |  None       |
+| 4     | MAJOR ROADS  | Feature Layer | Input | Polyline | None        |
+| 5     | Parcels      | Feature Layer | Input | Polygon | None         |
+| 6     | ROUTINE MAINTENANCE | Feature Layer | Input | Polyline | None |
+| 7     | Sewer Diameter Field | Field | Input | None | Sewer Lines   |
+| 8     | Sewer Diameter Field | Field | Input | None | Sewer Lines   |
+| 9     | Largest Sewer Diameter | String | Input | None | None          | 
+| 10    | Select the STOP WO| SQL Expression | Input | None | work order    |
+| 11    | Select SSO WO | SQL Expression | Input | None | work order    |
+| 12    | Select commercial and residential parcels | SQL Expression | Input | None | Parcels |
+| 13    | Risk         | File      | Output    | shp    | None          |
 
 
 
