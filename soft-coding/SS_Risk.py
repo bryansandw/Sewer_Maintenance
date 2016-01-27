@@ -53,7 +53,7 @@ SS_Buffer_HS_shp = env.workspace + "\\SS_Buffer_HS.shp"
 Density_Surface = ""
 WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
 #Risk_shp = env.workspace + "\\Risk.shp"
-Risk_shp = arcpy.GetParameterAsText(12)
+Risk_shp = arcpy.GetParameterAsText(13)
 
 def drange(start, stop, step):
         list_range = [0]
@@ -230,7 +230,8 @@ def Weigh_lines(Risk_shp):
 # This creates selects the SS_Line that are < 12 
 # and outputs the copy as Sewer_2_shp
 MAINSIZE = arcpy.GetParameter(7)
-SIZE = arcpy.GetParameterAsText(8)
+YEAR = arcpy.GetParameter(8)
+SIZE = arcpy.GetParameterAsText(9)
 arcpy.SetProgressorLabel("Select Sewer lines " + SIZE + " inches or less")
 
 try:
@@ -248,7 +249,7 @@ arcpy.SetProgressorLabel("Select STOPs")
 # This creates a shapefile of the work orders (All_WO) that have the 
 # CATCODE STOP and the TASKCODE USG ect... and out puts the points 
 # As WO_STOP_1
-arcpy.Select_analysis(All_WO, WO_STOP_1, arcpy.GetParameterAsText(9))
+arcpy.Select_analysis(All_WO, WO_STOP_1, arcpy.GetParameterAsText(10))
     #"\"CATCODE\" = 'STOP' AND " +
     #"\"TASKCODE\" = 'USG' OR \"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'US'"
     #+ " OR \"CATCODE\" = 'STOP' AND\"TASKCODE\" = 'USR'")
@@ -279,7 +280,7 @@ arcpy.Snap_edit(WO_STOP_1, [
 arcpy.SetProgressorLabel("Select SSOs")
 # Similar to 2nd Process, but selects SSO's instead the output file is
 # WO_SSO_1
-arcpy.Select_analysis(All_WO, WO_SSO_1, arcpy.GetParameterAsText(10))
+arcpy.Select_analysis(All_WO, WO_SSO_1, arcpy.GetParameterAsText(11))
     #"\"CATCODE\" = 'SSO' AND " + 
     #"\"TASKCODE\" = 'CAP' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'DPR' " +
     #"OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'GPU' OR \"CATCODE\" = 'SSO" +
@@ -560,7 +561,7 @@ arcpy.SetProgressorLabel("Select commercial and residential")
 # I ended up using the F and B values in the state cd field, I do not know
 # what these mean, so this could be improved
 arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp,
-    arcpy.GetParameterAsText(11))
+    arcpy.GetParameterAsText(12))
 #"state_cd = 'F1' OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
 
 arcpy.SetProgressorLabel("Add Field Type")
@@ -819,23 +820,47 @@ fields = arcpy.ListFields(Risk_shp)
 str_field = []
 for field in fields:
     str_field.append(field.baseName)
-if 'MAINSIZE' in str_field:
+if 'MAINSIZE' in str_field and 'YEAR' in str_field:
     Weigh_lines(Risk_shp)    
-else:
+elif 'YEAR' in str_field:
     field_index = str_field.index(str(MAINSIZE))
     arcpy.AddField_management(Risk_shp, "MAINSIZE", "FLOAT")
     arcpy.CalculateField_management(Risk_shp, "MAINSIZE", '!' + \
         str(fields[field_index].name) + '!', "PYTHON", "")
-    arcpy.DeleteField_management("Risk_input_2", 
+    arcpy.DeleteField_management(Risk_shp, 
         str(fields[field_index].name))
-    Weigh_lines(Risk_shp)  
+    Weigh_lines(Risk_shp)
+elif 'MAINSIZE' in str_field:
+    field_index = str_field.index(str(YEAR))
+    arcpy.AddField_management(Risk_shp, "YEAR", "DOUBLE")
+    arcpy.CalculateField_management(Risk_shp, "YEAR", '!' + \
+        str(fields[field_index].name) + '!', "PYTHON", "")
+    arcpy.DeleteField_management(Risk_shp, 
+        str(fields[field_index].name))
+    Weigh_lines(Risk_shp)	
+else:
+    ms_index = str_field.index(str(MAINSIZE))
+    arcpy.AddField_management(Risk_shp, "MAINSIZE", "FLOAT")
+    arcpy.CalculateField_management(Risk_shp, "MAINSIZE", '!' + \
+        str(fields[ms_index].name) + '!', "PYTHON", "")
+    arcpy.DeleteField_management(Risk_shp, 
+        str(fields[ms_index].name))
+    yr_index = str_field.index(str(YEAR))
+    arcpy.AddField_management(Risk_shp, "YEAR", "DOUBLE")
+    arcpy.CalculateField_management(Risk_shp, "YEAR", '!' + \
+        str(fields[yr_index].name) + '!', "PYTHON", "")
+    arcpy.DeleteField_management(Risk_shp, 
+        str(fields[yr_index].name))
+    Weigh_lines(Risk_shp)	
 
-##This should work, but it says : Invalid value type for parameter field
-##    for field1 in fields:
-##         if field1.name == str(fields[field_index].name):
-##            #print "Found"
-##            arcpy.AlterField_management(fc, field1, 'MyMS', 'my mainsize')
 
+'''This should work, but it says : Invalid value type for parameter field
+    
+    for field1 in fields:
+         if field1.name == str(fields[field_index].name):
+            #print "Found"
+            arcpy.AlterField_management(fc, field1, 'MyMS', 'my mainsize')
+'''
 dropFields = ["Join_Count", "TARGET_FID", "Join_Cou_1", "TARGET_F_1",
               "Join_Cou_2", "TARGET_F_2", "Join_Cou_3", "TARGET_F_3",
               "Join_Cou_4", "TARGET_F_4"]
