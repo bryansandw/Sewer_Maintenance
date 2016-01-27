@@ -44,7 +44,7 @@ The data type column provides a dropdown box with a large number of choices on t
 It is important that the display names and the data types are in the same order that they are called in the script found on this git.  Feel free to make the display names fit your data. 
 
 | Index | Display Name | Data Type | Direction | Filter | Obtained from |
-|*------|*------------*|*---------*|*---------*|*------*|*-------------*|
+|:------|:------------:|:---------:|:---------:|:------:|:-------------:|
 | 0     | Workspace    | Workspace | Input     | I used File System | None   |
 | 1     | Sewer Lines  | Feature Layer | Input | Polyline | None        |
 | 2     | All work order points | Feature Layer | Input | Point | None  |
