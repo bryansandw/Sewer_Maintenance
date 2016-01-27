@@ -55,16 +55,195 @@ WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
 #Risk_shp = env.workspace + "\\Risk.shp"
 Risk_shp = arcpy.GetParameterAsText(12)
 
+def drange(start, stop, step):
+        list_range = [0]
+        r = start
+        while r < stop:
+            if round(r, 1)%int(r) == 0.0:
+                list_range.append(int(r))
+            else:
+                list_range.append(round(r, 1))
+            r += step
+        return list_range
+
+def Weigh_lines(Risk_shp):
+    sewers2 = arcpy.UpdateCursor(Risk_shp)
+
+    arcpy.SetProgressorLabel("Create list of the risk values to identify the highest risk lines")
+# Create empty list to store risk values in so that the highest risk lines 
+# can be identified 
+    risk_list = []
+# Will use the current year to find ages of pipes
+    year = datetime.date.today().year
+	
+    arcpy.SetProgressorLabel("Update fields with weights")
+
+
+    for s in sewers2:
+
+    # print "Main size is " + s.MAINSIZE
+        if s.MAINSIZE is None:
+            s.Con_Size = 0
+        elif s.MAINSIZE == " ":
+            s.Con_Size = 0
+        elif float(s.MAINSIZE) > 8:        
+            s.Con_Size = 10
+        elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) <= 8:
+            s.Con_Size = 7
+        elif float(s.MAINSIZE) > 4 and float(s.MAINSIZE) <= 6:
+            s.Con_Size = 4
+        elif float(s.MAINSIZE) <= 4:
+            s.Con_Size = 1
+        else:
+            s.Con_Size = 0
+    #print s.Con_Size
+    
+	# print "Main size is " + s.MAINSIZE
+    # Maybe I don't want to use this field?
+        if s.MAINSIZE is None:
+            s.STOP_like = 0
+        elif s.MAINSIZE == " ":
+            s.STOP_like = 0
+        elif float(s.MAINSIZE) > 8 and float(s.MAINSIZE) <= 12:        
+            s.STOP_like = 2
+        elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) <= 8:
+            s.STOP_like = 4
+        elif float(s.MAINSIZE) > 4 and float(s.MAINSIZE) <= 6:
+            s.STOP_like = 7
+        elif float(s.MAINSIZE) <= 4:
+            s.STOP_like = 10
+        else:
+            s.STOP_like = 0
+    # print s.Con_Size	
+    
+	# print "To_Water is " + s.To_Water	
+        if s.To_Water <= 100:
+            s.Con_Water = 10
+        elif s.To_Water > 100 and s.To_Water <= 500:
+            s.Con_Water = 7
+        elif s.To_Water > 500 and s.To_Water <= 1000:
+            s.Con_Water = 4
+        elif s.To_Water > 1000:
+            s.Con_Water = 1
+        else:
+            s.Con_Water = 0
+    #print Con_Water
+	
+    # Need to come up with something different 		
+        if s.To_Road <= 10:
+            s.Con_Road = 10
+        elif s.To_Road > 10 and s.To_Road <= 40:
+            s.Con_Road = 7
+        elif s.To_Road > 40 and s.To_Road <= 100:
+            s.Con_Road = 4
+        elif s.To_Road > 100 and s.To_Road <= 200:
+            s.Con_Road = 1
+        else:
+            s.Con_Road = 0
+
+    # Need to Check that this is updated 8/13/15
+        if s.To_High_Pu <= 50:
+            s.Con_Pub = 10
+        elif s.To_Mod_Pub <= 50:
+            s.Con_Pub = 7
+        elif s.To_Low_Pub <= 50:
+            s.Con_Pub = 4
+        else:
+            s.Con_Pub = 1
+
+    # Weights can be changed, maybe make them variables else where? 
+    #    arcpy.GetParameterAsText(12))
+        s.Consequenc = (.3 * s.Con_Size) + (.4 * s.Con_Water) + \
+            (.1 * s.Con_Road) + (.2 * s.Con_Pub)
+    # Use the number of days since RM occurred to set phy_con value
+        if s.DaySinRM  > 1460:
+            s.Phy_Con = 10
+        elif s.DaySinRM > 1095:
+            s.Phy_Con = 7
+        elif s.DaySinRM > 730:
+            s.Phy_Con = 4
+        elif s.DaySinRM > 365:
+            s.Phy_Con = 2
+        else:
+            s.Phy_Con = 1
+    # Use the year the line was built to set Age_Con value
+    # The current year is used find lines that are 30 yr old
+    # Age less than 30 years
+        if s.YEAR > year - 30: 
+            s.Age_Con = 1
+    # Age between 30 and 39 years
+        elif s.YEAR > year - 40 and s.YEAR <= year - 30:
+            s.Age_Con = 2
+    # age between 40 and 49 years
+        elif s.YEAR > year - 50 and s.YEAR <= year - 40:
+            s.Age_Con = 4
+    # age between 50 and 59 years
+        elif s.YEAR > year - 60 and s.YEAR <= year - 50:
+            s.Age_Con = 7
+    # age greater than 60 years
+        elif s.YEAR <= year - 60:
+           s.Age_Con = 10
+        else: 
+           s.Phy_Con = 0
+    # Use the number of STOPs or SSOs to set the Failure_ value
+        if s.SSO_Count > 1:
+            s.Failure_ = 10
+        elif s.SSO_Count > 0 and s.SSO_Count < 2:
+            s.Failure_ = 7
+        elif s.STOP_Count > 1:
+            s.Failure_ = 4
+        elif s.STOP_Count > 0 and s.STOP_Count < 2:
+            s.Failure_ = 2
+        elif s.STOP_Count < 1 and s.SSO_Count < 1:
+           s.Failure_ = 1
+        else: 
+           s.Failure_ = 0  
+    # Use the Gi_Bin value from the Hot Spot analysis to set Fail_Den value
+        if s.Gi_Bin > 2:
+            s.Fail_Den = 10    
+        elif s.Gi_Bin > 1:
+            s.Fail_Den = 7
+        elif s.Gi_Bin > 0:
+            s.Fail_Den = 4
+        elif s.Gi_Bin < 0:
+            s.Fail_Den = 1	
+        elif s.Gi_Bin < 1:
+            s.Fail_Den = 2		
+        else:
+            s.Fail_Den = 0
+
+    # Weights can be changed, maybe make them variables else where? 
+    # Age Condition is Age_Con, Physical Condition is Phy_Con, 
+    # WO Likelihood is Failure_ , WO Density is Fail_Den,
+    # Home Values is Mark_Weigh, Potential for Stoppage is STOP_like
+        s.Likelihood = (.35 * s.Phy_Con) + (.1 * s.Mark_Weigh) + \
+            (.05 * s.Age_Con) + (.15 * s.Failure_) + (.2 * s.Fail_Den) + \
+            (.15 * s.STOP_like)
+
+        s.Risk = s.Consequenc * s.Likelihood
+        risk_list.append (s.Risk)
+	
+        sewers2.updateRow(s)
+    del sewers2
+    return Risk_shp
 
 # This creates selects the SS_Line that are < 12 
 # and outputs the copy as Sewer_2_shp
 MAINSIZE = arcpy.GetParameter(7)
 SIZE = arcpy.GetParameterAsText(8)
 arcpy.SetProgressorLabel("Select Sewer lines " + SIZE + " inches or less")
-SQL = str(MAINSIZE) + " <= " + str(SIZE)
-arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL) 
-    #"\"MAINSIZE\" <= 12"
 
+try:
+    SQL = str(MAINSIZE) + " <= " + str(SIZE)
+    arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL) 
+    #"\"MAINSIZE\" <= 12"
+except:
+    mainsize_value = drange(1.0, float(SIZE), 0.5)
+    SQL = "\"" + str(MAINSIZE) + "\" = '" + str(SIZE) +"'"
+    for ms_value in mainsize_value:
+        SQL += " OR \"" + str(MAINSIZE) + "\" = '" + str(ms_value) + "'"
+    arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL) 
+	
 arcpy.SetProgressorLabel("Select STOPs")
 # This creates a shapefile of the work orders (All_WO) that have the 
 # CATCODE STOP and the TASKCODE USG ect... and out puts the points 
@@ -636,164 +815,26 @@ del fieldmappings5
 
 arcpy.SetProgressorLabel("Create a Update Cursor to update the fields")
 # Create a cursor to iterate through the risk file
-sewers2 = arcpy.UpdateCursor(Risk_shp)
+fields = arcpy.ListFields(Risk_shp)
+str_field = []
+for field in fields:
+    str_field.append(field.baseName)
+if 'MAINSIZE' in str_field:
+    Weigh_lines(Risk_shp)    
+else:
+    field_index = str_field.index(str(MAINSIZE))
+    arcpy.AddField_management(Risk_shp, "MAINSIZE", "FLOAT")
+    arcpy.CalculateField_management(Risk_shp, "MAINSIZE", '!' + \
+        str(fields[field_index].name) + '!', "PYTHON", "")
+    arcpy.DeleteField_management("Risk_input_2", 
+        str(fields[field_index].name))
+    Weigh_lines(Risk_shp)  
 
-arcpy.SetProgressorLabel("Create list of the risk values to identify the highest risk lines")
-# Create empty list to store risk values in so that the highest risk lines 
-# can be identified 
-risk_list = []
-# Will use the current year to find ages of pipes
-year = datetime.date.today().year
-	
-arcpy.SetProgressorLabel("Update fields with weights")
-
-
-for s in sewers2:
-
-    # print "Main size is " + s.MAINSIZE
-    if s.MAINSIZE is None:
-        s.Con_Size = 0
-    elif s.MAINSIZE == " ":
-        s.Con_Size = 0
-    elif float(s.MAINSIZE) > 8:        
-        s.Con_Size = 10
-    elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) <= 8:
-        s.Con_Size = 7
-    elif float(s.MAINSIZE) > 4 and float(s.MAINSIZE) <= 6:
-        s.Con_Size = 4
-    elif float(s.MAINSIZE) <= 4:
-        s.Con_Size = 1
-    else:
-        s.Con_Size = 0
-    #print s.Con_Size
-    
-	# print "Main size is " + s.MAINSIZE
-    # Maybe I don't want to use this field?
-    if s.MAINSIZE is None:
-        s.STOP_like = 0
-    elif s.MAINSIZE == " ":
-        s.STOP_like = 0
-    elif float(s.MAINSIZE) > 8 and float(s.MAINSIZE) <= 12:        
-        s.STOP_like = 2
-    elif float(s.MAINSIZE) > 6 and float(s.MAINSIZE) <= 8:
-        s.STOP_like = 4
-    elif float(s.MAINSIZE) > 4 and float(s.MAINSIZE) <= 6:
-        s.STOP_like = 7
-    elif float(s.MAINSIZE) <= 4:
-        s.STOP_like = 10
-    else:
-        s.STOP_like = 0
-    # print s.Con_Size	
-    
-	# print "To_Water is " + s.To_Water	
-    if s.To_Water <= 100:
-        s.Con_Water = 10
-    elif s.To_Water > 100 and s.To_Water <= 500:
-        s.Con_Water = 7
-    elif s.To_Water > 500 and s.To_Water <= 1000:
-        s.Con_Water = 4
-    elif s.To_Water > 1000:
-        s.Con_Water = 1
-    else:
-        s.Con_Water = 0
-    #print Con_Water
-	
-    # Need to come up with something different 		
-    if s.To_Road <= 10:
-        s.Con_Road = 10
-    elif s.To_Road > 10 and s.To_Road <= 40:
-        s.Con_Road = 7
-    elif s.To_Road > 40 and s.To_Road <= 100:
-        s.Con_Road = 4
-    elif s.To_Road > 100 and s.To_Road <= 200:
-        s.Con_Road = 1
-    else:
-        s.Con_Road = 0
-
-    # Need to Check that this is updated 8/13/15
-    if s.To_High_Pu <= 50:
-        s.Con_Pub = 10
-    elif s.To_Mod_Pub <= 50:
-        s.Con_Pub = 7
-    elif s.To_Low_Pub <= 50:
-        s.Con_Pub = 4
-    else:
-        s.Con_Pub = 1
-
-    # Weights can be changed, maybe make them variables else where? 
-    #    arcpy.GetParameterAsText(12))
-    s.Consequenc = (.3 * s.Con_Size) + (.4 * s.Con_Water) + \
-        (.1 * s.Con_Road) + (.2 * s.Con_Pub)
-    # Use the number of days since RM occurred to set phy_con value
-    if s.DaySinRM  > 1460:
-        s.Phy_Con = 10
-    elif s.DaySinRM > 1095:
-        s.Phy_Con = 7
-    elif s.DaySinRM > 730:
-        s.Phy_Con = 4
-    elif s.DaySinRM > 365:
-        s.Phy_Con = 2
-    else:
-        s.Phy_Con = 1
-    # Use the year the line was built to set Age_Con value
-    # The current year is used find lines that are 30 yr old
-    # Age less than 30 years
-    if s.YEAR > year - 30: 
-        s.Age_Con = 1
-    # Age between 30 and 39 years
-    elif s.YEAR > year - 40 and s.YEAR <= year - 30:
-        s.Age_Con = 2
-    # age between 40 and 49 years
-    elif s.YEAR > year - 50 and s.YEAR <= year - 40:
-        s.Age_Con = 4
-    # age between 50 and 59 years
-    elif s.YEAR > year - 60 and s.YEAR <= year - 50:
-        s.Age_Con = 7
-    # age greater than 60 years
-    elif s.YEAR <= year - 60:
-       s.Age_Con = 10
-    else: 
-       s.Phy_Con = 0
-    # Use the number of STOPs or SSOs to set the Failure_ value
-    if s.SSO_Count > 1:
-        s.Failure_ = 10
-    elif s.SSO_Count > 0 and s.SSO_Count < 2:
-        s.Failure_ = 7
-    elif s.STOP_Count > 1:
-        s.Failure_ = 4
-    elif s.STOP_Count > 0 and s.STOP_Count < 2:
-        s.Failure_ = 2
-    elif s.STOP_Count < 1 and s.SSO_Count < 1:
-       s.Failure_ = 1
-    else: 
-       s.Failure_ = 0  
-    # Use the Gi_Bin value from the Hot Spot analysis to set Fail_Den value
-    if s.Gi_Bin > 2:
-        s.Fail_Den = 10    
-    elif s.Gi_Bin > 1:
-        s.Fail_Den = 7
-    elif s.Gi_Bin > 0:
-        s.Fail_Den = 4
-    elif s.Gi_Bin < 0:
-        s.Fail_Den = 1	
-    elif s.Gi_Bin < 1:
-        s.Fail_Den = 2		
-    else:
-        s.Fail_Den = 0
-
-    # Weights can be changed, maybe make them variables else where? 
-    # Age Condition is Age_Con, Physical Condition is Phy_Con, 
-    # WO Likelihood is Failure_ , WO Density is Fail_Den,
-    # Home Values is Mark_Weigh, Potential for Stoppage is STOP_like
-    s.Likelihood = (.35 * s.Phy_Con) + (.1 * s.Mark_Weigh) + \
-        (.05 * s.Age_Con) + (.15 * s.Failure_) + (.2 * s.Fail_Den) + \
-        (.15 * s.STOP_like)
-
-    s.Risk = s.Consequenc * s.Likelihood
-    risk_list.append (s.Risk)
-	
-    sewers2.updateRow(s)
-del sewers2
+##This should work, but it says : Invalid value type for parameter field
+##    for field1 in fields:
+##         if field1.name == str(fields[field_index].name):
+##            #print "Found"
+##            arcpy.AlterField_management(fc, field1, 'MyMS', 'my mainsize')
 
 dropFields = ["Join_Count", "TARGET_FID", "Join_Cou_1", "TARGET_F_1",
               "Join_Cou_2", "TARGET_F_2", "Join_Cou_3", "TARGET_F_3",
