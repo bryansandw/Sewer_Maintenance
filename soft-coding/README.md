@@ -44,24 +44,22 @@ The data type column provides a dropdown box with a large number of choices on t
 It is important that the display names and the data types are in the same order that they are called in the script found on this git.  Feel free to make the display names fit your data. 
 
 | Index | Display Name | Data Type | Direction | Filter | Obtained from |
-|*-|*-*|*-*|*-|*-|*-|
-| 0 | Workspace | Workspace| Input | I used File System ||
-| 1 | Sewer Lines | Feature Layer | Input | Polyline ||
-| 2 | All work order points | Feature Layer | Input | Point ||
-| 3 | Streams | Feature Layer | Input | Polyline | |
-| 4 | MAJOR ROADS | Feature Layer | Input | Polyline | |
-| 5 | Parcels | Feature Layer | Input | Polygon | |
-| 6 | ROUTINE MAINTENANCE | Feature Layer | Input | Polyline | |
-| 7 | Sewer Diameter Field | Field | Input | | Sewer Lines |
-| 8 | Sewer Diameter Field | Field | Input | | Sewer Lines |
-| 9 | Largest Sewer Diameter | String | Input | | | 
-| 10 | Select the STOP WO| SQL Expression | Input | | work order |
-| 11 | Select SSO WO | SQL Expression | Input |  | work order |
-| 12 | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
-| 13 | Risk | File | Output | shp | |
-| 14 | | | | | |
-| 15 | | | | | |
-| 16 | | | | | |
+|*------|*------------*|*---------*|*---------*|*------*|*-------------*|
+| 0     | Workspace    | Workspace | Input     | I used File System |   |
+| 1     | Sewer Lines  | Feature Layer | Input | Polyline |             |
+| 2     | All work order points | Feature Layer | Input | Point |       |
+| 3     | Streams      | Feature Layer | Input | Polyline |             |
+| 4     | MAJOR ROADS  | Feature Layer | Input | Polyline |             |
+| 5     | Parcels      | Feature Layer | Input | Polygon |              |
+| 6     | ROUTINE MAINTENANCE | Feature Layer | Input | Polyline |      |
+| 7     | Sewer Diameter Field | Field | Input |        | Sewer Lines   |
+| 8     | Sewer Diameter Field | Field | Input |        | Sewer Lines   |
+| 9     | Largest Sewer Diameter | String | Input |     |               | 
+| 10    | Select the STOP WO| SQL Expression | Input |  | work order    |
+| 11    | Select SSO WO | SQL Expression | Input |      | work order    |
+| 12    | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
+| 13    | Risk         | File      | Output    | shp    |               |
+
 
 
 
