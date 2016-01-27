@@ -505,7 +505,7 @@ arcpy.Select_analysis(parcels_select_shp, mod_com_impact,
     "Type = 'LOW DENSITY COMMERCIAL'")
 
 arcpy.SetProgressorLabel("Select the high community impact areas: " \
-    "Hospitals, Schools, high density commercial."
+    "Hospitals, Schools, high density commercial.")
 # Select the high density type parcels, the hospitals, and the schools and
 # export them as high_com_impact file, these are the high community impact
 # parcels
