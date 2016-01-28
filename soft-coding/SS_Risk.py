@@ -55,6 +55,12 @@ WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
 #Risk_shp = env.workspace + "\\Risk.shp"
 Risk_shp = arcpy.GetParameterAsText(13)
 
+def check4default(input, default):
+    if input == '':
+        return default
+    else:
+        return float(input)
+
 def drange(start, stop, step):
         list_range = [0]
         r = start
@@ -153,8 +159,28 @@ def Weigh_lines(Risk_shp):
 
     # Weights can be changed, maybe make them variables else where? 
     #    arcpy.GetParameterAsText(12))
-        s.Consequenc = (.3 * s.Con_Size) + (.4 * s.Con_Water) + \
-            (.1 * s.Con_Road) + (.2 * s.Con_Pub)
+	# Check if the peramiter coming in is '' and set default position
+	    #Potential for Large SSO
+        plsso = arcpy.GetParameterAsText(14) #.3 
+        PLSSO = check4default(plsso, 30)
+        #Distance to Water
+        d2w = arcpy.GetParameterAsText(15) #.4
+        D2W = check4default(d2w, 40)
+        #Disruption to Commuters
+        d2c = arcpy.GetParameterAsText(16) # .1
+        D2C = check4default(d2c, 10)
+        #Impact to Community 
+        i2c = arcpy.GetParameterAsText(17) # .2
+        I2C = check4default(i2c, 20)
+		
+        t = ((PLSSO * s.Con_Size) + ( D2W * s.Con_Water) + \
+            (D2C * s.Con_Road) + (I2C * s.Con_Pub))
+        b = (PLSSO + D2W + D2C + I2C)
+		
+        s.Consequenc = int(t / b)
+            
+			
+			
     # Use the number of days since RM occurred to set phy_con value
         if s.DaySinRM  > 1460:
             s.Phy_Con = 10
@@ -216,9 +242,31 @@ def Weigh_lines(Risk_shp):
     # Age Condition is Age_Con, Physical Condition is Phy_Con, 
     # WO Likelihood is Failure_ , WO Density is Fail_Den,
     # Home Values is Mark_Weigh, Potential for Stoppage is STOP_like
-        s.Likelihood = (.35 * s.Phy_Con) + (.1 * s.Mark_Weigh) + \
-            (.05 * s.Age_Con) + (.15 * s.Failure_) + (.2 * s.Fail_Den) + \
-            (.15 * s.STOP_like)
+	    #Age Condition
+        a_ss = arcpy.GetParameterAsText(18) #.05
+        A_SS = check4default(a_ss, 5)
+        #Physical Condition
+        phc = arcpy.GetParameterAsText(19) #.35
+        PhC = check4default(phc, 35)
+        #WO Likelihood
+        wol = arcpy.GetParameterAsText(20) # .15
+        WOL = check4default(wol, 15)
+        #WO Density 
+        wod = arcpy.GetParameterAsText(21) # .2	
+        WOD = check4default(wod, 20)
+        #Home Values
+        hv = arcpy.GetParameterAsText(22) # .1
+        HV = check4default(hv, 10)
+        #Potential for Stoppage
+        s_l = arcpy.GetParameterAsText(23) # .15
+        S_L = check4default(s_l, 15)
+		
+        t1 = ((PhC * s.Phy_Con) + (HV * s.Mark_Weigh) + \
+             (A_SS * s.Age_Con) + (WOL * s.Failure_) + (WOD * s.Fail_Den) + \
+             (S_L * s.STOP_like))
+        b1 = ( A_SS + PhC + WOL + WOD + HV + S_L )
+		
+        s.Likelihood = t1 / b1
 
         s.Risk = s.Consequenc * s.Likelihood
         risk_list.append (s.Risk)
@@ -233,6 +281,9 @@ MAINSIZE = arcpy.GetParameter(7)
 YEAR = arcpy.GetParameter(8)
 SIZE = arcpy.GetParameterAsText(9)
 arcpy.SetProgressorLabel("Select Sewer lines " + SIZE + " inches or less")
+
+### NEED TO CORRECT!!! Find out how to check an input fields type?
+### https://wiki.python.org/moin/HandlingExceptions
 
 try:
     SQL = str(MAINSIZE) + " <= " + str(SIZE)
@@ -873,5 +924,5 @@ toDelete = [Sewer_2_shp, WO_STOP_1, WO_SSO_1, Sewer_SSO_shp,
         mod_com_impact, high_com_impact, WO_RM_shp, SS_buffer_shp,
         WO_RM_HS_join_shp]
  
-for file in toDelete:
-    arcpy.Delete_management(file, "")
+for field2 in toDelete:
+    arcpy.Delete_management(fiel, "")
