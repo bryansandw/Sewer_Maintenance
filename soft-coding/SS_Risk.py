@@ -55,13 +55,39 @@ WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
 #Risk_shp = env.workspace + "\\Risk.shp"
 Risk_shp = arcpy.GetParameterAsText(13)
 
+# the %s method didn't work correctly, although it may have been a "' issue
+# need to try again
+# I should consider having fieldmappings3 be an input instead of static...
+def addMyField(my_string):
+    """
+    This function creates a numeric fieldmap with the input string.
+    This field map creates a field in a feature class. 
+    """
+    string = '"' + my_string + '\"' + my_string + '\" true true false 9 Long 0 0 ,First,#;' 
+    fieldmappings3.loadFromString(string)   
+    my_variable = fieldmappings3.getFieldMap(fieldmappings3.findFieldMapIndex (my_string))
+    return my_variable
+	
 def check4default(input, default):
+    '''
+    This function is intended to check if the input value is empty.
+    If the input is not empty the function returns the input, if it 
+    is empty the function returns the second value. 
+    The tool GUI in ArcMap feeds default variables in as '' 
+    so I need to handle it by checking if the variable is ''
+    '''
     if input == '':
         return default
     else:
         return float(input)
 
 def drange(start, stop, step):
+    '''
+    This function works similarly to range, but is also has a way to 
+    handle decimals, or other iterators.  The starting number, the 
+    ending number in the range, and how much to add to the start number
+    until you get the stop number.  The output is a list. 
+    '''
         list_range = [0]
         r = start
         while r < stop:
@@ -433,140 +459,20 @@ RM_Count.outputField = RC
 # Create the individual fields that will be used in future processes, 
 # All field maps created here should be empty and hold long type variables
 # Create DaySinRM
-fieldmappings3.loadFromString(
-    "DaySinRM \"DaySinRM\" true true false 9 Long 0 0 ,First,#;")
-DaySinRM = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("DaySinRM"))
 
-# Create To_Water
-fieldmappings3.loadFromString(
-    "To_Water \"To_Water\" true true false 9 Long 0 9 ,First,#;")
-To_Water = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("To_Water"))
+field_names = ['To_Water', 'To_Road', 'To_Low_Pub', 'To_Mod_Pub', 'To_High_Pu', 
+    'DaySinRM', 'Con_Size', 'Con_Water', 'Con_Road',
+    'Con_Pub', 'Consequenc', 'WO_Weight', 'STOP_like', 'Phy_Con', 'Age_Con', 
+    'Failure_', 'Fail_Den', 'Likelihood', 'Risk']
 
-# Create To_Road
-fieldmappings3.loadFromString(
-    "To_Road \"To_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "To_Road,-1,-1;")
-To_Road = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("To_Road"))
-
-# Create To_Low_Pub
-fieldmappings3.loadFromString(
-    "To_Low_Pub \"To_Low_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
-    ",To_Low_Pub,-1,-1;")
-To_Low_Pub = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("To_Low_Pub"))
-
-# Create To_Mod_Pub
-fieldmappings3.loadFromString(
-    "To_Mod_Pub \"To_Mod_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
-    ",To_Mod_Pub,-1,-1;")
-To_Mod_Pub = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("To_Mod_Pub"))
-
-# Create To_High_Pu
-fieldmappings3.loadFromString(
-    "To_High_Pu \"To_High_Pu\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
-    ",To_High_Pu,-1,-1;")
-To_High_Pu = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("To_High_Pu"))
-
-# Create Con_Size
-fieldmappings3.loadFromString(
-    "Con_Size \"Con_Size\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Con_Size,-1,-1;")
-Con_Size = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Con_Size"))
+field_list = [Comp_Date, RM_Count]
 	
-# Create Con_Water 
-fieldmappings3.loadFromString(
-    "Con_Water \"Con_Water\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Con_Water,-1,-1;")
-Con_Water = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Con_Water"))
-
-# Create Con_Road 
-fieldmappings3.loadFromString(
-    "Con_Road \"Con_Road\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Con_Road,-1,-1;")
-Con_Road = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Con_Road"))
+for n in field_names:
+    n = addMyField(n)
+    field_list.append(n)
 	
-# Create Con_Pub
-fieldmappings3.loadFromString(
-    "Con_Pub \"Con_Pub\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Con_Pub,-1,-1;")
-Con_Pub = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Con_Pub"))
-	
-# Create Consequenc
-fieldmappings3.loadFromString(
-    "Consequenc \"Consequenc\" true true false 9 Long 0 9 ,First,#,Sewer_2" +
-    ",Consequenc,-1,-1;")
-Consequenc = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Consequenc"))
-	
-# Create WO_Weight
-fieldmappings3.loadFromString(
-    "WO_Weight \"WO_Weight\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "WO_Weight,-1,-1;")
-WO_Weight = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("WO_Weight"))
-	
-# Create Age_Con 
-fieldmappings3.loadFromString(
-    "Age_Con \"Age_Con\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Age_Con,-1,-1;")
-Age_Con = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Age_Con"))
-	
-# Create Phy_Con
-fieldmappings3.loadFromString(
-    "Phy_Con \"Phy_Con\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Phy_Con,-1,-1;")
-Phy_Con = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Phy_Con"))
-	
-# Create Failure_
-fieldmappings3.loadFromString(
-    "Failure_ \"Failure_\" true true false 9 Long 0 9 ,First,#,Sewer_2," + 
-    "Failure_,-1,-1;")
-Failure_  = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Failure_"))
-	
-# Create Fail_Den
-fieldmappings3.loadFromString(
-    "Fail_Den \"Fail_Den\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "Fail_Den,-1,-1;")
-Fail_Den = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Fail_Den"))
-	
-# Create STOP_like
-fieldmappings3.loadFromString(
-    "STOP_like \"STOP_like\" true true false 9 Long 0 9 ,First,#,Sewer_2," +
-    "STOP_like,-1,-1;")
-STOP_like = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("STOP_like"))
-	
-# Create Likelihood
-fieldmappings3.loadFromString(
-    "Likelihood \"Likelihood\" true true false 9 Long 0 9 ,First,#,Sewer_2,"
-    "Likelihood,-1,-1;")
-Likelihood = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Likelihood"))
-	
-# Create Risk
-fieldmappings3.loadFromString(
-    "Risk \"Risk\" true true false 9 Long 0 9 ,First,#,Sewer_2,Risk,-1,-1;")
-Risk = fieldmappings3.getFieldMap(
-    fieldmappings3.findFieldMapIndex ("Risk"))
-
 # Add the field map to the field mapping object 
-field_list = [To_Water, To_Road, To_Low_Pub, To_Mod_Pub, To_High_Pu, 
-    Comp_Date, DaySinRM, RM_Count, Con_Size, Con_Water, Con_Road, Con_Pub, 
-    Consequenc, WO_Weight, STOP_like, Phy_Con, Age_Con, Failure_, Fail_Den, 
-    Likelihood, Risk]
+
 
 for f_l in field_list: 
     fieldmappings2.addFieldMap(f_l)
@@ -692,7 +598,7 @@ for lp in l_parcels:
 del l_parcels	
 home_value_sort = sorted(home_value)
 list_len = len(home_value_sort)
-fifth_1 = list_len/6
+fifth_1 = list_len / 6
 fifth_2 = fifth_1 * 2
 fifth_3 = fifth_1 * 3
 fifth_4 = fifth_1 * 4
