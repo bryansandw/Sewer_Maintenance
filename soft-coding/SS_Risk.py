@@ -13,6 +13,7 @@ from arcpy import env
 import arcpy
 import datetime
 import numpy
+
 env.overwriteOutput = True
 env.autoCancelling = False
 
@@ -323,16 +324,17 @@ arcpy.SetProgressorLabel("Select Sewer lines " + SIZE + " inches or less")
 ### NEED TO CORRECT!!! Find out how to check an input fields type?
 ### https://wiki.python.org/moin/HandlingExceptions
 
-try:
+if isinstance(MAINSIZE, int) == True or isinstance(MAINSIZE, float) == True or \
+   isinstance(MAINSIZE, long) == True or isinstance(MAINSIZE, complex) == True:
     SQL = str(MAINSIZE) + " <= " + str(SIZE)
     arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL) 
     #"\"MAINSIZE\" <= 12"
-except:
+else:
     mainsize_value = drange(1.0, float(SIZE), 0.5)
     SQL = "\"" + str(MAINSIZE) + "\" = '" + str(SIZE) +"'"
     for ms_value in mainsize_value:
         SQL += " OR \"" + str(MAINSIZE) + "\" = '" + str(ms_value) + "'"
-    arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL) 
+    arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL)
 	
 arcpy.SetProgressorLabel("Select STOPs")
 # This creates a shapefile of the work orders (All_WO) that have the 
