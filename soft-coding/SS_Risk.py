@@ -925,4 +925,4 @@ toDelete = [Sewer_2_shp, WO_STOP_1, WO_SSO_1, Sewer_SSO_shp,
         WO_RM_HS_join_shp]
  
 for field2 in toDelete:
-    arcpy.Delete_management(fiel, "")
+    arcpy.Delete_management(field2, "")
