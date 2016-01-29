@@ -88,15 +88,15 @@ def drange(start, stop, step):
     ending number in the range, and how much to add to the start number
     until you get the stop number.  The output is a list. 
     '''
-        list_range = [0]
-        r = start
-        while r < stop:
-            if round(r, 1)%int(r) == 0.0:
-                list_range.append(int(r))
-            else:
-                list_range.append(round(r, 1))
-            r += step
-        return list_range
+    list_range = [0]
+    r = start
+    while r < stop:
+        if round(r, 1)%int(r) == 0.0:
+            list_range.append(int(r))
+        else:
+            list_range.append(round(r, 1))
+        r += step
+    return list_range
 
 def Weigh_lines(Risk_shp):
     sewers2 = arcpy.UpdateCursor(Risk_shp)
@@ -301,6 +301,18 @@ def Weigh_lines(Risk_shp):
     del sewers2
     return Risk_shp
 
+def correctFieldName(shp_to_correct, list_of_fields, user_field, newName):
+    '''
+    This function only creates float fields.  
+    '''
+    field_index = list_of_fields.index(str(user_field))
+    arcpy.AddField_management(shp_to_correct, newName, "FLOAT")
+    arcpy.CalculateField_management(shp_to_correct, newName, '!' + \
+        str(fields[field_index].name) + '!', "PYTHON", "")
+    arcpy.DeleteField_management(shp_to_correct, 
+        str(fields[field_index].name))
+    return Risk_shp		
+	
 # This creates selects the SS_Line that are < 12 
 # and outputs the copy as Sewer_2_shp
 MAINSIZE = arcpy.GetParameter(7)
@@ -438,6 +450,8 @@ arcpy.SetProgressorLabel("Before adding fields there are " +  \
 
 fieldmappings3 = arcpy.FieldMappings()
 
+# Need to handle Comp_Date if it has another name,
+# or is not in date format
 # Create two field maps from RM
 Comp_Date = arcpy.FieldMap()
 Comp_Date.addInputField(rm,"Comp_Date") 
@@ -611,8 +625,8 @@ med_home = home_arr[fifth_3]
 high_home = home_arr[fifth_4]
 highest_home = home_arr[fifth_5]
 
-arcpy.SetProgressorLabel("Classify the parcels land values to weights")
 # Create the cursor to iterate through the low community impact file
+arcpy.SetProgressorLabel("Classify the parcels land values to weights")
 low_parcels = arcpy.UpdateCursor(low_com_impact)
 
 # Fill in the Mark_Weigh field based on the value of the market field
@@ -634,96 +648,98 @@ for p in low_parcels:
 
 del low_parcels	
 
-print "25th Process: Select (5) the moderate community impact areas," \
-    " low density commercial."
+
 # Select the low density type parcels and export them as mod_com_impact file
 # These are the moderate community impact parcels
+arcpy.SetProgressorLabel("Select the moderate community impact areas," \
+    " low density commercial.")
 arcpy.Select_analysis(parcels_select_shp, mod_com_impact,
     "Type = 'LOW DENSITY COMMERCIAL'")
 
-arcpy.SetProgressorLabel("Select the high community impact areas: " \
-    "Hospitals, Schools, high density commercial.")
 # Select the high density type parcels, the hospitals, and the schools and
 # export them as high_com_impact file, these are the high community impact
 # parcels
+arcpy.SetProgressorLabel("Select the high community impact areas: " \
+    "Hospitals, Schools, high density commercial.")
 arcpy.Select_analysis(parcels_select_shp, high_com_impact, 
     "Type = 'HOSPITAL' OR Type = 'SCHOOL' OR Type = 'HIGH DENSITY COMMERCIAL'")
 
-arcpy.SetProgressorLabel("Near are the sewers near the low impact area?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the low_com_impact
 # parcels
+arcpy.SetProgressorLabel("Near are the sewers near the low impact area?")
 arcpy.Near_analysis(WO_RM_shp, low_com_impact, "", "NO_LOCATION", "NO_ANGLE",
     "PLANAR")
 
-arcpy.SetProgressorLabel("Calculate Field fill To_Low_Pub with distance.")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_Low_Pub field
+arcpy.SetProgressorLabel("Calculate Field fill To_Low_Pub with distance.")
 arcpy.CalculateField_management(WO_RM_shp, "To_Low_Pub", "!NEAR_DIST!",
     "PYTHON", "")
 
-arcpy.SetProgressorLabel("Near are the sewers near the moderate community" \
-    " impact area?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the mod_com_impact
 # parcels
+arcpy.SetProgressorLabel("Near are the sewers near the moderate community" \
+    " impact area?")
 arcpy.Near_analysis(WO_RM_shp, mod_com_impact, "", "NO_LOCATION", "NO_ANGLE",
     "PLANAR")
 
-arcpy.SetProgressorLabel("Calculate Field")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_Mod_Pub field
+arcpy.SetProgressorLabel("Calculate Field")
 arcpy.CalculateField_management(WO_RM_shp, "To_Mod_Pub", "!NEAR_DIST!",
     "PYTHON", "")
 
-arcpy.SetProgressorLabel("Near are the sewers near the high community" \
-    " impact area?")
 # Replaces the NEAR_DIST with a new field of the same name, this time
 # displaying the distance in feet between WO_RM_shp and the high_com_impact
 # parcels
+arcpy.SetProgressorLabel("Near are the sewers near the high community" \
+    " impact area?")
 arcpy.Near_analysis(WO_RM_shp, high_com_impact, "", "NO_LOCATION",
     "NO_ANGLE", "PLANAR")
 
-arcpy.SetProgressorLabel("Calculate Field")
 # Pull the numbers from the NEAR_DIST field and use them to fill the
 # currently empty To_High_Pu field
+arcpy.SetProgressorLabel("Calculate To_High_Pu Field")
 arcpy.CalculateField_management(WO_RM_shp, "To_High_Pu", "!NEAR_DIST!",
     "PYTHON", "")
 
-arcpy.SetProgressorLabel("Delete Field")
 # Deleting the fields that will no logger be needed 
+arcpy.SetProgressorLabel("Delete Field")
 arcpy.DeleteField_management(WO_RM_shp, "NEAR_FID;NEAR_DIST")
 
-arcpy.SetProgressorLabel("Calculate Field WO_Weight")
 # Fill the WO_Weight field with the sum of the SSO_Count field multiplied by
 # 3 and the number in the STOP_Count field.  This will be used later to find
 # the WO hot spots, SSOs are more important, which is why they are weighted 
+arcpy.SetProgressorLabel("Calculate Field WO_Weight")
 arcpy.CalculateField_management(WO_RM_shp, "WO_Weight", 
     "(!SSO_Count! * 3) + !STOP_Count!", "PYTHON", "")
 
-arcpy.SetProgressorLabel("Buffer 50ft from RM")
+
 # Hot Spot analysis can not be performer on polylines, so a buffer is
 # performed with a 50 ft radius and output as SS_Buffer_shp
+arcpy.SetProgressorLabel("Buffer 50ft from RM")
 arcpy.Buffer_analysis(WO_RM_shp, SS_buffer_shp, "50 Feet", "FULL", "ROUND",
     "NONE", "")
 
-arcpy.SetProgressorLabel("Buffer 50ft from low community impact")
 # The output, low_com_imp_buff, will be used later to determine the relative
 # values of the residential areas that feed sewer lines, many sewer lines 
 # are not in the parcels themselves, but are in the public areas near parcels
+arcpy.SetProgressorLabel("Buffer 50ft from low community impact")
 arcpy.Buffer_analysis(low_com_impact, low_com_imp_buf, "50 Feet", "FULL", 
     "ROUND", "NONE", "")
 
-arcpy.SetProgressorLabel("Optimized Hot Spot Analysis")
 # If the Hot Spot Analysis is run in ArcMap or ArcCataloge the python script
 # will abort after finishing running this process.  The Hot Spot analysis is
 # run on the WO_Weight values. 
+arcpy.SetProgressorLabel("Optimized Hot Spot Analysis")
 arcpy.OptimizedHotSpotAnalysis_stats(SS_buffer_shp, SS_Buffer_HS_shp,
     "WO_Weight", "", "", Density_Surface)
 
-arcpy.SetProgressorLabel("Create field mapping for Spatial Join")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
+arcpy.SetProgressorLabel("Create field mapping for Spatial Join")
 fieldmappings4 = arcpy.FieldMappings()
 fieldmappings4.addTable(WO_RM_shp)
 Gi_Bin = arcpy.FieldMap()
@@ -731,10 +747,10 @@ Gi_Bin.addInputField(SS_Buffer_HS_shp,"Gi_Bin")
 Gi_Bin.mergeRule = "first"
 fieldmappings4.addFieldMap(Gi_Bin) 
 
-arcpy.SetProgressorLabel("Spatial Join")
 # The results of the Hot Spot analysis are added to the WO_RM_shp file with
 # the spatial join.  This is needed to return the format to a polyline 
 # format instead of a polygon format. 
+arcpy.SetProgressorLabel("Spatial Join")
 arcpy.SpatialJoin_analysis(WO_RM_shp, SS_Buffer_HS_shp, WO_RM_HS_join_shp,
     "JOIN_ONE_TO_ONE", "KEEP_COMMON", fieldmappings4, "INTERSECT", "", "")
 del fieldmappings4
@@ -751,9 +767,9 @@ for m in maintenance:
     maintenance.updateRow(m)
 del maintenance
 
-arcpy.SetProgressorLabel("Create field mapping for Spatial Join")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
+arcpy.SetProgressorLabel("Create field mapping for Spatial Join")
 fieldmappings5 = arcpy.FieldMappings()
 fieldmappings5.addTable(WO_RM_HS_join_shp)
 Mark_Weigh = arcpy.FieldMap()
@@ -766,50 +782,34 @@ Mark_Value.addInputField(low_com_imp_buf,"market")
 Mark_Value.mergeRule = "mean"
 fieldmappings5.addFieldMap(Mark_Value) 
 
-print "42nd Process: Spatial Join"
+arcpy.SetProgressorLabel("Spatial Join")
 arcpy.SpatialJoin_analysis(WO_RM_HS_join_shp, low_com_imp_buf, Risk_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings5, "INTERSECT", "", "")
 del fieldmappings5
 
-arcpy.SetProgressorLabel("Create a Update Cursor to update the fields")
 # Create a cursor to iterate through the risk file
+arcpy.SetProgressorLabel("Create a Update Cursor to update the fields")
 fields = arcpy.ListFields(Risk_shp)
 str_field = []
 for field in fields:
     str_field.append(field.baseName)
+# Check if the users data fields have the same names or if 
+# the field names need to be corected for the code to run
 if 'MAINSIZE' in str_field and 'YEAR' in str_field:
-    Weigh_lines(Risk_shp)    
-elif 'YEAR' in str_field:
-    field_index = str_field.index(str(MAINSIZE))
-    arcpy.AddField_management(Risk_shp, "MAINSIZE", "FLOAT")
-    arcpy.CalculateField_management(Risk_shp, "MAINSIZE", '!' + \
-        str(fields[field_index].name) + '!', "PYTHON", "")
-    arcpy.DeleteField_management(Risk_shp, 
-        str(fields[field_index].name))
     Weigh_lines(Risk_shp)
+# YEAR field name is same, but MAINSIZE is different
+elif 'YEAR' in str_field:
+    correctFieldName(Risk_shp, str_field, MAINSIZE, "MAINSIZE")	
+    Weigh_lines(Risk_shp)
+# MAINSIZE field name is same, but YEAR is different	
 elif 'MAINSIZE' in str_field:
-    field_index = str_field.index(str(YEAR))
-    arcpy.AddField_management(Risk_shp, "YEAR", "DOUBLE")
-    arcpy.CalculateField_management(Risk_shp, "YEAR", '!' + \
-        str(fields[field_index].name) + '!', "PYTHON", "")
-    arcpy.DeleteField_management(Risk_shp, 
-        str(fields[field_index].name))
-    Weigh_lines(Risk_shp)	
+    correctFieldName(Risk_shp, str_field, YEAR, "YEAR")	
+    Weigh_lines(Risk_shp)
+# YEAR and MAINSIZE field names are different	
 else:
-    ms_index = str_field.index(str(MAINSIZE))
-    arcpy.AddField_management(Risk_shp, "MAINSIZE", "FLOAT")
-    arcpy.CalculateField_management(Risk_shp, "MAINSIZE", '!' + \
-        str(fields[ms_index].name) + '!', "PYTHON", "")
-    arcpy.DeleteField_management(Risk_shp, 
-        str(fields[ms_index].name))
-    yr_index = str_field.index(str(YEAR))
-    arcpy.AddField_management(Risk_shp, "YEAR", "DOUBLE")
-    arcpy.CalculateField_management(Risk_shp, "YEAR", '!' + \
-        str(fields[yr_index].name) + '!', "PYTHON", "")
-    arcpy.DeleteField_management(Risk_shp, 
-        str(fields[yr_index].name))
+    correctFieldName(Risk_shp, str_field, MAINSIZE, "MAINSIZE")	
+    correctFieldName(Risk_shp, str_field, YEAR, "YEAR")	
     Weigh_lines(Risk_shp)	
-
 
 '''This should work, but it says : Invalid value type for parameter field
     
@@ -824,11 +824,10 @@ dropFields = ["Join_Count", "TARGET_FID", "Join_Cou_1", "TARGET_F_1",
 arcpy.DeleteField_management(Risk_shp, dropFields)
 
 ### Delete Shapefiles that are no longer needed ### 
-#arcpy.Delete_management(out_data, "")
 toDelete = [Sewer_2_shp, WO_STOP_1, WO_SSO_1, Sewer_SSO_shp,
         Sewer_SSO_STOP_shp, parcels_select_shp, low_com_impact,
         mod_com_impact, high_com_impact, WO_RM_shp, SS_buffer_shp,
         WO_RM_HS_join_shp]
  
-for field2 in toDelete:
-    arcpy.Delete_management(field2, "")
+for shp_file in toDelete:
+    arcpy.Delete_management(shp_file, "")
