@@ -13,7 +13,6 @@ from arcpy import env
 import arcpy
 import datetime
 import numpy
-
 env.overwriteOutput = True
 env.autoCancelling = False
 
@@ -33,7 +32,6 @@ Streams = arcpy.GetParameterAsText(3)
 MAJOR_ROADS = arcpy.GetParameterAsText(4) 
 BCAD_PARCELS = arcpy.GetParameterAsText(5) 
 rm = arcpy.GetParameterAsText(6) 
-#MH = arcpy.GetParameterAsText(7) 
 
 ### These are output locations for the files that are created and manipulated
 ### many will be deleted a the end of the script
@@ -54,7 +52,7 @@ SS_Buffer_HS_shp = env.workspace + "\\SS_Buffer_HS.shp"
 Density_Surface = ""
 WO_RM_HS_join_shp = env.workspace + "\\WO_RM_HS_join.shp"
 #Risk_shp = env.workspace + "\\Risk.shp"
-Risk_shp = arcpy.GetParameterAsText(13)
+Risk_shp = arcpy.GetParameterAsText(14)
 
 # the %s method didn't work correctly, although it may have been a "' issue
 # need to try again
@@ -188,16 +186,16 @@ def Weigh_lines(Risk_shp):
     #    arcpy.GetParameterAsText(12))
 	# Check if the peramiter coming in is '' and set default position
 	    #Potential for Large SSO
-        plsso = arcpy.GetParameterAsText(14) #.3 
+        plsso = arcpy.GetParameterAsText(15) #.3 
         PLSSO = check4default(plsso, 30)
         #Distance to Water
-        d2w = arcpy.GetParameterAsText(15) #.4
+        d2w = arcpy.GetParameterAsText(16) #.4
         D2W = check4default(d2w, 40)
         #Disruption to Commuters
-        d2c = arcpy.GetParameterAsText(16) # .1
+        d2c = arcpy.GetParameterAsText(17) # .1
         D2C = check4default(d2c, 10)
         #Impact to Community 
-        i2c = arcpy.GetParameterAsText(17) # .2
+        i2c = arcpy.GetParameterAsText(18) # .2
         I2C = check4default(i2c, 20)
 		
         t = ((PLSSO * s.Con_Size) + ( D2W * s.Con_Water) + \
@@ -270,22 +268,22 @@ def Weigh_lines(Risk_shp):
     # WO Likelihood is Failure_ , WO Density is Fail_Den,
     # Home Values is Mark_Weigh, Potential for Stoppage is STOP_like
 	    #Age Condition
-        a_ss = arcpy.GetParameterAsText(18) #.05
+        a_ss = arcpy.GetParameterAsText(19) #.05
         A_SS = check4default(a_ss, 5)
         #Physical Condition
-        phc = arcpy.GetParameterAsText(19) #.35
+        phc = arcpy.GetParameterAsText(20) #.35
         PhC = check4default(phc, 35)
         #WO Likelihood
-        wol = arcpy.GetParameterAsText(20) # .15
+        wol = arcpy.GetParameterAsText(21) # .15
         WOL = check4default(wol, 15)
         #WO Density 
-        wod = arcpy.GetParameterAsText(21) # .2	
+        wod = arcpy.GetParameterAsText(22) # .2	
         WOD = check4default(wod, 20)
         #Home Values
-        hv = arcpy.GetParameterAsText(22) # .1
+        hv = arcpy.GetParameterAsText(23) # .1
         HV = check4default(hv, 10)
         #Potential for Stoppage
-        s_l = arcpy.GetParameterAsText(23) # .15
+        s_l = arcpy.GetParameterAsText(24) # .15
         S_L = check4default(s_l, 15)
 		
         t1 = ((PhC * s.Phy_Con) + (HV * s.Mark_Weigh) + \
@@ -321,9 +319,6 @@ YEAR = arcpy.GetParameter(8)
 SIZE = arcpy.GetParameterAsText(9)
 arcpy.SetProgressorLabel("Select Sewer lines " + SIZE + " inches or less")
 
-### NEED TO CORRECT!!! Find out how to check an input fields type?
-### https://wiki.python.org/moin/HandlingExceptions
-
 if isinstance(MAINSIZE, int) == True or isinstance(MAINSIZE, float) == True or \
    isinstance(MAINSIZE, long) == True or isinstance(MAINSIZE, complex) == True:
     SQL = str(MAINSIZE) + " <= " + str(SIZE)
@@ -336,18 +331,15 @@ else:
         SQL += " OR \"" + str(MAINSIZE) + "\" = '" + str(ms_value) + "'"
     arcpy.Select_analysis(SS_Lines, Sewer_2_shp, SQL)
 	
-arcpy.SetProgressorLabel("Select STOPs")
 # This creates a shapefile of the work orders (All_WO) that have the 
 # CATCODE STOP and the TASKCODE USG ect... and out puts the points 
 # As WO_STOP_1
-arcpy.Select_analysis(All_WO, WO_STOP_1, arcpy.GetParameterAsText(10))
-    #"\"CATCODE\" = 'STOP' AND " +
-    #"\"TASKCODE\" = 'USG' OR \"CATCODE\" = 'STOP' AND \"TASKCODE\" = 'US'"
-    #+ " OR \"CATCODE\" = 'STOP' AND\"TASKCODE\" = 'USR'")
+arcpy.SetProgressorLabel("Select STOPs")
+arcpy.Select_analysis(All_WO, WO_STOP_1, arcpy.GetParameterAsText(11))
 
-arcpy.SetProgressorLabel("Define snapping environments")
 # The snapping environments set the rules for how the snap 
 # function will snap features together
+arcpy.SetProgressorLabel("Define snapping environments")
 snapEnv1 = [SS_Lines, "EDGE", '50 Feet']
 snapEnv2 = [SS_Lines, "EDGE", '100 Feet']
 snapEnv3 = [SS_Lines, "EDGE", '150 Feet']
@@ -357,29 +349,24 @@ snapEnv6 = [SS_Lines, "EDGE", '300 Feet']
 snapEnv7 = [SS_Lines, "EDGE", '350 Feet']
 snapEnv8 = [SS_Lines, "EDGE", '400 Feet']
 
-arcpy.SetProgressorLabel("Snap STOPs to Sewer")
 # The copy of the sewer STOP work orders are snapped to the sewer lines, by
 # starting at 50 ft and working out at 50 ft intervals, the hope is that the
 # majority of the WO points will end up snapped to the line where the wo 
 # occurred, but the wo's do not identify what line they occurred on and only
 # identify what address the wo occurred at
+arcpy.SetProgressorLabel("Snap STOPs to Sewer")
 arcpy.Snap_edit(WO_STOP_1, [
     snapEnv1, snapEnv2, snapEnv3, snapEnv4, 
     snapEnv5, snapEnv6, snapEnv7, snapEnv8
     ])
 
-arcpy.SetProgressorLabel("Select SSOs")
 # Similar to 2nd Process, but selects SSO's instead the output file is
 # WO_SSO_1
-arcpy.Select_analysis(All_WO, WO_SSO_1, arcpy.GetParameterAsText(11))
-    #"\"CATCODE\" = 'SSO' AND " + 
-    #"\"TASKCODE\" = 'CAP' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'DPR' " +
-    #"OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'GPU' OR \"CATCODE\" = 'SSO" +
-    #"' AND \"TASKCODE\" = 'PFPU' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" " + 
-    #"= 'PSF' OR \"CATCODE\" = 'SSO' AND \"TASKCODE\" = 'RPU'")
-	
-arcpy.SetProgressorLabel("Snap SSOs to sewer")
+arcpy.SetProgressorLabel("Select SSOs")
+arcpy.Select_analysis(All_WO, WO_SSO_1, arcpy.GetParameterAsText(12))
+
 # Same as 4th process, but on WO_SSO_1 instead
+arcpy.SetProgressorLabel("Snap SSOs to sewer")
 arcpy.Snap_edit(WO_SSO_1, [
     snapEnv1, snapEnv2, snapEnv3, snapEnv4, 
     snapEnv5, snapEnv6, snapEnv7, snapEnv8
@@ -389,9 +376,9 @@ arcpy.Snap_edit(WO_SSO_1, [
 del snapEnv1, snapEnv2, snapEnv3, snapEnv4
 del snapEnv5, snapEnv6, snapEnv7, snapEnv8
 
-arcpy.SetProgressorLabel("Adding Field mappings")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
+arcpy.SetProgressorLabel("Adding Field mappings")
 fieldmappings = arcpy.FieldMappings()
 fieldmappings.addTable(Sewer_2_shp)
 
@@ -410,16 +397,16 @@ fieldmap.outputField = field
 # Add the field map to the field mapping object 
 fieldmappings.addFieldMap(fieldmap) 
 
-arcpy.SetProgressorLabel("Spatial Join adding SSO WO to Sewer")
 # The spatial join creates a new shapefile that has the fields that were 
 # added in the field mappings
+arcpy.SetProgressorLabel("Spatial Join adding SSO WO to Sewer")
 arcpy.SpatialJoin_analysis(Sewer_2_shp, WO_SSO_1, Sewer_SSO_shp,
     "JOIN_ONE_TO_ONE", "KEEP_ALL", fieldmappings)
 del fieldmappings
 
-arcpy.SetProgressorLabel("Adding Field mappings")
 # Create a new fieldmappings and add the input feature classes.
 # This creates field map objects for each field in the sewer file.
+arcpy.SetProgressorLabel("Adding Field mappings")
 fieldmappings1 = arcpy.FieldMappings()
 fieldmappings1.addTable(Sewer_SSO_shp)
 
@@ -455,14 +442,20 @@ fieldmappings3 = arcpy.FieldMappings()
 # Need to handle Comp_Date if it has another name,
 # or is not in date format
 # Create two field maps from RM
+# Handles Date type but not sting or unicode change here or at 760?
+RM_Date = arcpy.GetParameterAsText(10)
 Comp_Date = arcpy.FieldMap()
-Comp_Date.addInputField(rm,"Comp_Date") 
+Comp_Date.addInputField(rm,RM_Date) 
 Comp_Date.mergeRule = 'max'
+CD = Comp_Date.outputField
+CD.name = "Comp_Date"
+CD.aliasName = "Comp_Date"
+Comp_Date.outputField = CD
+
+# Rename the field and pass the updated field object back into the field map
 RM_Count = arcpy.FieldMap()
 RM_Count.addInputField(rm, "OBJECTID")
 RM_Count.mergeRule = "count"
-
-# Rename the field and pass the updated field object back into the field map
 RC = RM_Count.outputField
 RC.name = "RM_Count"
 RC.aliasName = "RM_Count"
@@ -534,7 +527,7 @@ arcpy.SetProgressorLabel("Select commercial and residential")
 # I ended up using the F and B values in the state cd field, I do not know
 # what these mean, so this could be improved
 arcpy.Select_analysis(BCAD_PARCELS, parcels_select_shp,
-    arcpy.GetParameterAsText(12))
+    arcpy.GetParameterAsText(13))
 #"state_cd = 'F1' OR state_cd = 'F2' OR state_cd LIKE 'A%' OR state_cd LIKE 'B%'")
 
 arcpy.SetProgressorLabel("Add Field Type")
@@ -763,6 +756,18 @@ maintenance = arcpy.UpdateCursor(WO_RM_HS_join_shp)
 for m in maintenance:
     if m.Comp_Date is None:
         m.DaySinRM = 99999
+	# All are coming back as 0 on string data types.
+    elif isinstance(m.Comp_Date, basestring):
+        if '/' in str(m.Comp_Date):
+            s_rm_date = str(m.Comp_Date)
+            rm_date = m.s_rm_date.split('/')
+            dif = datetime.datetime.now()- datetime.date(rm_date[2], rm_date[0], rm_date[1])
+            m.DaySinRM = dif.days
+        elif '-' in m.Comp_Date:
+            s_rm_date = str(m.Comp_Date)		
+            rm_date = m.s_rm_date.split('-')
+            dif = datetime.datetime.now()- datetime.date(rm_date[2], rm_date[0], rm_date[1])
+            m.DaySinRM = dif.days		
     else:
         dif = datetime.datetime.now()- m.Comp_Date
         m.DaySinRM = dif.days
