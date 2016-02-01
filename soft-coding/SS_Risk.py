@@ -446,11 +446,16 @@ fieldmappings3 = arcpy.FieldMappings()
 RM_Date = arcpy.GetParameterAsText(10)
 Comp_Date = arcpy.FieldMap()
 Comp_Date.addInputField(rm,RM_Date) 
-Comp_Date.mergeRule = 'max'
 CD = Comp_Date.outputField
+if CD.type == u'Date':
+    Comp_Date.mergeRule = 'max'
+else:
+    Comp_Date.mergeRule = 'last'
 CD.name = "Comp_Date"
 CD.aliasName = "Comp_Date"
 Comp_Date.outputField = CD
+
+
 
 # Rename the field and pass the updated field object back into the field map
 RM_Count = arcpy.FieldMap()
@@ -758,16 +763,17 @@ for m in maintenance:
         m.DaySinRM = 99999
 	# All are coming back as 0 on string data types.
     elif isinstance(m.Comp_Date, basestring):
-        if '/' in str(m.Comp_Date):
-            s_rm_date = str(m.Comp_Date)
-            rm_date = m.s_rm_date.split('/')
-            dif = datetime.datetime.now()- datetime.date(rm_date[2], rm_date[0], rm_date[1])
+        arcpy.SetProgressorLabel("Is instance basestring")
+        if '/' in m.Comp_Date:
+            rm_date = m.Comp_Date.split('/')
+            dif = datetime.datetime.now()- datetime.datetime(int(rm_date[2]), int(rm_date[0]), int(rm_date[1]), 00, 00, 00)
             m.DaySinRM = dif.days
         elif '-' in m.Comp_Date:
-            s_rm_date = str(m.Comp_Date)		
-            rm_date = m.s_rm_date.split('-')
-            dif = datetime.datetime.now()- datetime.date(rm_date[2], rm_date[0], rm_date[1])
-            m.DaySinRM = dif.days		
+            rm_date = m.Comp_Date.split('-')
+            dif = datetime.datetime.now()- datetime.date(int(rm_date[2]), int(rm_date[0]), int(rm_date[1]), 00, 00, 00)
+            m.DaySinRM = dif.days
+        else:
+            m.DaySinRM = 99999
     else:
         dif = datetime.datetime.now()- m.Comp_Date
         m.DaySinRM = dif.days
