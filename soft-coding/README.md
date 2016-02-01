@@ -61,14 +61,14 @@ It is important that the display names and the data types are in the same order 
 | 13 | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
 | 14 | Risk | File | Output | shp |  |
 | 15 | Weight percent for potential for large SSO (Optional)| Double |  |  |  |
-| 16 | Weight percent for distance to water| Double (Optional)|  |  |  |
+| 16 | Weight percent for distance to water (Optional)| Double |  |  |  |
 | 17 | Weight percent for disruption to commuters (Optional) | Double |  |  |  |
 | 18 | Weight percent for impact to community (Optional) | Double |  |  |  |
 | 19 | Weight percent for age condition (Optional) | Double | |  |  |
 | 20 | Weight percent for physical condition (Optional) | Double | |  |  |
 | 21 | Weight percent for work order likelihood (Optional) | Double |  |  |  |
 | 22 | Weight percent for work order density (Optional) | Double |  |  |  |
-| 23 |  Weight percent for home values (Optional| Double |) |  |  |
+| 23 |  Weight percent for home values (Optional) | Double | |  |  |
 | 24 |  Weight percent for potential for stoppage (Optional) | Double | |  |  |
 
 
