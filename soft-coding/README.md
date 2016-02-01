@@ -44,34 +44,48 @@ The data type column provides a dropdown box with a large number of choices on t
 It is important that the display names and the data types are in the same order that they are called in the script found on this git.  Feel free to make the display names fit your data. 
 
 | Index | Display Name | Data Type | Direction | Filter | Obtained from |
-|:------|:------------:|:---------:|:---------:|:------:|:-------------:|
-| 0     | Workspace    | Workspace | Input     | I used File System |    |
-| 1     | Sewer Lines  | Feature Layer | Input | Polyline |         |
-| 2     | All work order points | Feature Layer | Input | Point |   |
-| 3     | Streams      | Feature Layer | Input | Polyline |         |
-| 4     | MAJOR ROADS  | Feature Layer | Input | Polyline |         |
-| 5     | Parcels      | Feature Layer | Input | Polygon |          |
-| 6     | ROUTINE MAINTENANCE | Feature Layer | Input | Polyline |  |
-| 7     | Sewer Diameter Field | Field | Input |  | Sewer Lines   |
-| 8     | Sewer Diameter Field | Field | Input |  | Sewer Lines   |
-| 9     | Largest Sewer Diameter | String | Input |  |         | 
-| 10    | Select the STOP WO| SQL Expression | Input |  | work order    |
-| 11    | Select SSO WO | SQL Expression | Input |  | work order    |
-| 12    | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
-| 13    | Risk         | File      | Output    | shp    |           |
+|---|---|---|---|---|---|
+| 0 | Workspace | Workspace| Input | I used File System |  |
+| 1|  Sewer Lines | Feature Layer | Input | Polyline |  |
+| 2 | All work order points | Feature Layer | Input | Point |  |
+| 3 | Streams | Feature Layer | Input | Polyline |  |
+| 4 | Major Roads | Feature Layer | Input | Polyline |  |
+| 5 | Parcels | Feature Layer | Input | Polygon |  |
+| 6 | Routine Maintenance | Feature Layer | Input | Polyline |  |
+| 7 | What field represents Mainsize in Sewer feature| Field | Input | | Sewer Lines |
+| 8 | What field represents Year installed in Sewer feature| Field | Input | | Sewer Lines |
+| 9 | Largest Sewer Diameter | String | Input |  |  |
+| 10 | What field represents Date of Routine Maintenance | Field | Input | | Routine Maintenance |
+| 11 | Select the STOP WO| SQL Expression | Input |  | work order |
+| 12| Select SSO WO | SQL Expression | Input |  | work order |
+| 13 | Select commercial and residential parcels | SQL Expression | Input |  | Parcels |
+| 14 | Risk | File | Output | shp |  |
+| 15 | Weight percent for potential for large SSO (Optional)| Double |  |  |  |
+| 16 | Weight percent for distance to water| Double (Optional)|  |  |  |
+| 17 | Weight percent for disruption to commuters (Optional) | Double |  |  |  |
+| 18 | Weight percent for impact to community (Optional) | Double |  |  |  |
+| 19 | Weight percent for age condition (Optional) | Double | |  |  |
+| 20 | Weight percent for physical condition (Optional) | Double | |  |  |
+| 21 | Weight percent for work order likelihood (Optional) | Double |  |  |  |
+| 22 | Weight percent for work order density (Optional) | Double |  |  |  |
+| 23 |  Weight percent for home values (Optional| Double |) |  |  |
+| 24 |  Weight percent for potential for stoppage (Optional) | Double | |  |  |
 
-If you have correctly filled out the properties table the GUI tool interface should look like any other tool you might use in ArcMap with dropdowns with the shapefiles in the map document and the appropriate fields in the in th efield drop downs and the SQL builders.
+
+If you have correctly filled out the properties table the GUI tool interface should look like any other tool you might use in ArcMap
 
 ![Picture10](http://farm2.staticflickr.com/1590/24286498929_388a3cfb91_b.jpg)
 
+## Operating instructions
 
 ## A file manifest (list of files included)
 ## Copyright and licensing information
 The MIT License (MIT)
 Copyright (c) 2015 City of Bryan Water Department
+Must have the appropriate Arc License to run the ArcPy portion of the code. 
 ## Contact information for the distributor or programmer
 Elizabeth Rentschlar
 ## Known bugs
-The hot spot analysis will break the script if run inside of ArcMap.  
+If the date field in the routine maintenance shapefile is a string (text) the DaysSinRM field may be incorrect, because it assumes that the last routine maintenance feature added is the most recent routine maintenance.  The date field cannot currently handle alpha numeric dates like April 15, 2016.   
 ## Troubleshooting
 ## Credits and acknowledgments
