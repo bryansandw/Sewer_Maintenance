@@ -11,7 +11,7 @@
 # import arcinfo
 from arcpy import env
 import arcpy
-#import datetime
+import datetime
 #import numpy
 env.overwriteOutput = True
 env.autoCancelling = False
@@ -23,13 +23,12 @@ env.workspace = arcpy.GetParameterAsText(0)
 Risk_shp = arcpy.GetParameterAsText(1) 
 MH = arcpy.GetParameterAsText(2) 
 #May not use
-maint = env.workspace + "\\Maintenance.lyr"
-target_MH = env.workspace + "\\target_MH.shp"
+target_MH = arcpy.GetParameterAsText(3) #env.workspace + "\\target_MH.shp"
 map_output_folder = env.workspace + "\\Maps\\"
-map = arcpy.mapping.MapDocument("CURRENT") #env.workspace + "\\Sewer2.mxd"
+#map = arcpy.mapping.MapDocument(arcpy.GetParameterAsText(6)) #env.workspace + "\\Sewer2.mxd"
 #single_MH_lyr = env.workspace + "\\single_MH.shp"
-high_risk_lines = env.workspace + "\\high_risk_lines.shp"
-risky_line = env.workspace + "\\Target_Line.shp"
+high_risk_lines = arcpy.GetParameterAsText(4) #env.workspace + "\\high_risk_lines.shp"
+risky_line = arcpy.GetParameterAsText(5) #env.workspace + "\\Target_Line.shp"
 
 risk_list = []
 cur = arcpy.SearchCursor(Risk_shp)
@@ -55,7 +54,8 @@ arcpy.MakeFeatureLayer_management(Risk_shp, "High_Risk_lyr", where_clause)
 # Copy the layer to make it a feature that process may be run on
 arcpy.CopyFeatures_management("High_Risk_lyr", high_risk_lines)
 
-arcpy.SetProgressorLabel("Process: Make Layer where the Manholes are adjacent to the high risk sewer lines")
+arcpy.SetProgressorLabel("Process: Make Layer where the Manholes are " + \
+    "adjacent to the high risk sewer lines")
 # Create layer version of manholes
 arcpy.MakeFeatureLayer_management(MH, "MH_lyr")
 # Select the manholes that intersect with the high risk sewer lines
@@ -72,102 +72,90 @@ rline_FID_list =[]
 for line in risky_lines:
     rline_FID_list.append(line.FID)
 del risky_lines
-print rline_FID_list
+arcpy.SetProgressorLabel(rline_FID_list)
 
-arcpy.SetProgressorLabel("Set up map document environment to create exported map documents as pdfs in map folder")
+arcpy.SetProgressorLabel("Set up map document environment to create " + \
+    "exported map documents as pdfs in map folder")
 
 #print slyr.symbology
 #print slyr.symbologyType
 #print slyr
 #styleItem = arcpy.mapping.ListStyleItems("USER_STYLE", "Legend Items")#[0] 
 #print styleItem
+mapdoc = arcpy.mapping.MapDocument("CURRENT")
+data_frame = arcpy.mapping.ListDataFrames(mapdoc, "Layers")[0]
 
-'''
 for FID in rline_FID_list:
     where_clause2 = "\"FID\" = " + str(FID) + ""
     print where_clause2
     single_risky_line = risky_line  #+ str(FID) + ".shp" 
-    arcpy.Select_analysis(high_risk_lines, single_risky_line, where_clause2)
-    arcpy.MakeFeatureLayer_management(maint, "maint_lyr")
-    arcpy.SelectLayerByLocation_management("maint_lyr", "INTERSECT", 
-        single_risky_line)
-
-    maintDis = arcpy.SearchCursor("maint_lyr")
-    for m in maintDis:
-        district = m.District
-	#newlayer = arcpy.mapping.Layer(single_risky_line)
-    #arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")
-	
-    mapdoc = arcpy.mapping.MapDocument(map)
-
-    # need to loop through the target MH
-    # May need to loop through based on the FID value???
-    print "exporting maps"
-    #Data Frame 
-    data_frame = arcpy.mapping.ListDataFrames(mapdoc)[0]
-    print data_frame.name
-    print data_frame.scale
-    scale = data_frame.scale
-
+    fc = arcpy.Select_analysis(high_risk_lines, single_risky_line, where_clause2)
+    #lyr_ = risky_line.replace(".shp", ".lyr")
+    
+    
+    #newlayer = arcpy.mapping.Layer(lyr_)
+    #arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")	
     legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT",
         "Legend")[0]
-    legend.autoAdd = True
-    for text in arcpy.mapping.ListLayoutElements(mapdoc, "TEXT_ELEMENT"):
-        if text.text == "Text":
-            text.text = district + "\n" + date
-		
+    legend.autoAdd = True    
+  
+	# need to loop through the target MH
+    # May need to loop through based on the FID value???
+
+
+    #arcpy.RefreshActiveView()
+
+ #   for text in arcpy.mapping.ListLayoutElements(mapdoc, "TEXT_ELEMENT"):
+  #      if text.text == "Text":
+ #           text.text = district + "\n" + date
+    #arcpy.SelectLayerByAttribute_management(fc, "NEW_SELECTION")
 
     arcpy.RefreshActiveView()
     arcpy.RefreshTOC()
 
+    fc_cur = arcpy.da.SearchCursor(fc, ['LENGTH', 'SHAPE@X', 'SHAPE@Y'])
+    for fc_line in fc_cur:
+        line_length = fc_line[0]
+        cX = fc_line[1]
+        cY = fc_line[2]
+    del fc_cur	
+    arcpy.SetProgressorLabel(cX)
+    arcpy.SetProgressorLabel(cY)
+	
+    if line_length < 500.00:
+         new_scale = 500.00
+    elif line_length > 500.00 and line_length < 1000.00:
+         new_scale = 1000.00
+    elif line_length > 1000.00 and line_length < 1500.00:
+         new_scale = 1500.00
+    elif line_length > 1500.00 and line_length < 2000.00:
+         new_scale = 2000.00
+    elif line_length > 2000.00 and line_length < 2500.00:
+         new_scale = 2500.00
+    elif line_length > 2500.00 and line_length < 3000.00:
+         new_scale = 3000.00
+    elif line_length > 3000.00 and line_length < 3500.00:
+         new_scale = 3500.00
+    else:
+         new_scale = line_length + 50
+	
 
-    wildcard = "Target Line" #+ str(FID)
-    print wildcard
-    print arcpy.mapping.ListLayers(mapdoc)
-    try:
-        lyr = arcpy.mapping.ListLayers(mapdoc, wildcard)[0]
-        print lyr
-        data_frame.extent = lyr.getExtent(True)
-        arcpy.RefreshActiveView()     	
-	
-        print data_frame.extent
- 
-        scale = data_frame.scale
-        print data_frame.scale
-	
-        # Don't really need this.... 
-        # Need to find a way to change the scale to be 
-        # proportionate to length of line	
-        if scale < 500.00:
-            new_scale = 500.00
-        elif scale > 500.00 and scale < 1000.00:
-            new_scale = 1000.00
-        elif scale > 1000.00 and scale < 1500.00:
-            new_scale = 1500.00		
-        elif scale > 1500.00 and scale < 2000.00:
-            new_scale = 2000.00		
-        elif scale > 2000.00 and scale < 2500.00:
-            new_scale = 2500.00
-        elif scale > 2500.00 and scale < 3000.00:
-             new_scale = 3000.00		
-        elif scale > 3000.00 and scale < 3500.00:
-             new_scale = 3500.00
-        else:
-            new_scale = data_frame.scale
-        
-        data_frame.scale = new_scale
-        print data_frame.scale	
+    newExtent = data_frame.extent
+    newExtent.XMin = cX - (new_scale/2)
+    newExtent.XMax = cX + (new_scale/2)
+    newExtent.YMin = cY - (new_scale/2)
+    newExtent.YMax = cY + (new_scale/2)
+    data_frame.extent = newExtent
+    data_frame.scale = new_scale	
+    arcpy.SetProgressorLabel(data_frame.scale)
 		
-        arcpy.RefreshActiveView()     		
+    arcpy.RefreshActiveView()
 	    
-		#Improve naming convention?
-        map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
-        arcpy.mapping.ExportToPDF(mapdoc, map_output)		
-        print "Created Map for " + wildcard + " " + str(FID + 1)
+	#Improve naming convention?
+    map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
+    arcpy.mapping.ExportToPDF(mapdoc, map_output)
+    print "Created Map for " + str(FID + 1)
         
-        #arcpy.Delete_management(data_frame, single_risky_line)
+    #arcpy.Delete_management(data_frame, single_risky_line)
 		
-        del mapdoc
-    except:
-        print "Could not find " + wildcard
-'''
+del mapdoc
