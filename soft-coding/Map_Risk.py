@@ -77,38 +77,23 @@ arcpy.SetProgressorLabel(rline_FID_list)
 arcpy.SetProgressorLabel("Set up map document environment to create " + \
     "exported map documents as pdfs in map folder")
 
-#print slyr.symbology
-#print slyr.symbologyType
-#print slyr
-#styleItem = arcpy.mapping.ListStyleItems("USER_STYLE", "Legend Items")#[0] 
-#print styleItem
 mapdoc = arcpy.mapping.MapDocument("CURRENT")
 data_frame = arcpy.mapping.ListDataFrames(mapdoc, "Layers")[0]
 
 for FID in rline_FID_list:
-    where_clause2 = "\"FID\" = " + str(FID) + ""
+    where_clause2 = "\"FID\" = " + str(FID)
     print where_clause2
     single_risky_line = risky_line  #+ str(FID) + ".shp" 
     fc = arcpy.Select_analysis(high_risk_lines, single_risky_line, where_clause2)
-    #lyr_ = risky_line.replace(".shp", ".lyr")
     
+    lyr_ = risky_line.replace(".shp", ".lyr")
     
-    #newlayer = arcpy.mapping.Layer(lyr_)
-    #arcpy.mapping.AddLayer(data_frame, newlayer,"BOTTOM")	
+    newlayer = arcpy.MakeFeatureLayer_management(fc, lyr_)
+    addlayer = arcpy.mapping.Layer(lyr_)
+    arcpy.mapping.AddLayer(data_frame, addlayer,"TOP")	
     legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT",
         "Legend")[0]
     legend.autoAdd = True    
-  
-	# need to loop through the target MH
-    # May need to loop through based on the FID value???
-
-
-    #arcpy.RefreshActiveView()
-
- #   for text in arcpy.mapping.ListLayoutElements(mapdoc, "TEXT_ELEMENT"):
-  #      if text.text == "Text":
- #           text.text = district + "\n" + date
-    #arcpy.SelectLayerByAttribute_management(fc, "NEW_SELECTION")
 
     arcpy.RefreshActiveView()
     arcpy.RefreshTOC()
@@ -139,7 +124,6 @@ for FID in rline_FID_list:
     else:
          new_scale = line_length + 50
 	
-
     newExtent = data_frame.extent
     newExtent.XMin = cX - (new_scale/2)
     newExtent.XMax = cX + (new_scale/2)
@@ -150,7 +134,8 @@ for FID in rline_FID_list:
     arcpy.SetProgressorLabel(data_frame.scale)
 		
     arcpy.RefreshActiveView()
-	    
+    arcpy.RefreshTOC()
+	
 	#Improve naming convention?
     map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
     arcpy.mapping.ExportToPDF(mapdoc, map_output)
