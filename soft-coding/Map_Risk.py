@@ -54,15 +54,28 @@ arcpy.MakeFeatureLayer_management(Risk_shp, "High_Risk_lyr", where_clause)
 # Copy the layer to make it a feature that process may be run on
 arcpy.CopyFeatures_management("High_Risk_lyr", high_risk_lines)
 
+mapdoc = arcpy.mapping.MapDocument("CURRENT")
+data_frame = arcpy.mapping.ListDataFrames(mapdoc, "Layers")[0]
+
 arcpy.SetProgressorLabel("Process: Make Layer where the Manholes are " + \
     "adjacent to the high risk sewer lines")
 # Create layer version of manholes
-arcpy.MakeFeatureLayer_management(MH, "MH_lyr")
-# Select the manholes that intersect with the high risk sewer lines
-arcpy.SelectLayerByLocation_management("MH_lyr", "INTERSECT",
-    "High_Risk_lyr")
+
+tar_mh_layer = target_MH.replace(".shp", ".lyr")
+tar_mh = arcpy.SelectLayerByLocation_management(MH, "INTERSECT",
+    high_risk_lines)
 # Copy the selected Manholes as their own feature 
-arcpy.CopyFeatures_management("MH_lyr", target_MH)
+tar_mh_feature = arcpy.CopyFeatures_management(tar_mh, target_MH)
+
+MH_layer = arcpy.MakeFeatureLayer_management(tar_mh_feature, tar_mh_layer)
+addMHlayer = arcpy.mapping.Layer(tar_mh_layer)
+arcpy.mapping.AddLayer(data_frame, addMHlayer,"TOP")
+if addMHlayer.supports("SHOWLABELS") == True: 
+    addMHlayer.showLabels = True
+    for lblClass in addMHlayer.labelClasses:
+        if lblClass.showClassLabels:
+            lblClass.expression = "[LABEL]"
+# Select the manholes that intersect with the high risk sewer lines
 
 arcpy.SetProgressorLabel("Create a Update Cursor to select the lines")
 risky_lines = arcpy.SearchCursor(high_risk_lines)
@@ -76,10 +89,6 @@ arcpy.SetProgressorLabel(rline_FID_list)
 
 arcpy.SetProgressorLabel("Set up map document environment to create " + \
     "exported map documents as pdfs in map folder")
-
-mapdoc = arcpy.mapping.MapDocument("CURRENT")
-data_frame = arcpy.mapping.ListDataFrames(mapdoc, "Layers")[0]
-
 for FID in rline_FID_list:
     where_clause2 = "\"FID\" = " + str(FID)
     print where_clause2
