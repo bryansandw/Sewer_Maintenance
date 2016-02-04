@@ -22,13 +22,13 @@ env.workspace = arcpy.GetParameterAsText(0)
 ##### Local variables: #####
 Risk_shp = arcpy.GetParameterAsText(1) 
 MH = arcpy.GetParameterAsText(2) 
+target_line_symbology = arcpy.GetParameterAsText(3)
 #May not use
-target_MH = arcpy.GetParameterAsText(3) #env.workspace + "\\target_MH.shp"
+target_MH = env.workspace + "\\target_MH.shp"
 map_output_folder = env.workspace + "\\Maps\\"
-#map = arcpy.mapping.MapDocument(arcpy.GetParameterAsText(6)) #env.workspace + "\\Sewer2.mxd"
-#single_MH_lyr = env.workspace + "\\single_MH.shp"
-high_risk_lines = arcpy.GetParameterAsText(4) #env.workspace + "\\high_risk_lines.shp"
-risky_line = arcpy.GetParameterAsText(5) #env.workspace + "\\Target_Line.shp"
+high_risk_lines = env.workspace + "\\high_risk_lines.shp"
+risky_line = env.workspace + "\\Target_Line.shp"
+
 
 risk_list = []
 cur = arcpy.SearchCursor(Risk_shp)
@@ -103,8 +103,10 @@ for FID in rline_FID_list:
     addlayer = arcpy.mapping.Layer(lyr_)
     old_line_name = addlayer.name
     addlayer.name = "Target Line"
+    arcpy.mapping.AddLayer(data_frame, addlayer,"AUTO_ARRANGE")
+    sym_layer = arcpy.mapping.ListLayers(mapdoc, "Target Line", data_frame)[0]	
+    arcpy.mapping.UpdateLayer(data_frame, sym_layer, arcpy.mapping.Layer(target_line_symbology), True)
     
-    arcpy.mapping.AddLayer(data_frame, addlayer,"TOP")	
     legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT",
         "Legend")[0]
     legend.autoAdd = True    
