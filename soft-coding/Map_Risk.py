@@ -69,12 +69,14 @@ tar_mh_feature = arcpy.CopyFeatures_management(tar_mh, target_MH)
 
 MH_layer = arcpy.MakeFeatureLayer_management(tar_mh_feature, tar_mh_layer)
 addMHlayer = arcpy.mapping.Layer(tar_mh_layer)
-arcpy.mapping.AddLayer(data_frame, addMHlayer,"TOP")
 if addMHlayer.supports("SHOWLABELS") == True: 
     addMHlayer.showLabels = True
     for lblClass in addMHlayer.labelClasses:
         if lblClass.showClassLabels:
             lblClass.expression = "[LABEL]"
+addMHlayer.name = "Target Manholes"
+arcpy.mapping.AddLayer(data_frame, addMHlayer,"TOP")
+
 # Select the manholes that intersect with the high risk sewer lines
 
 arcpy.SetProgressorLabel("Create a Update Cursor to select the lines")
@@ -99,6 +101,9 @@ for FID in rline_FID_list:
     
     newlayer = arcpy.MakeFeatureLayer_management(fc, lyr_)
     addlayer = arcpy.mapping.Layer(lyr_)
+    old_line_name = addlayer.name
+    addlayer.name = "Target Line"
+    
     arcpy.mapping.AddLayer(data_frame, addlayer,"TOP")	
     legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT",
         "Legend")[0]
@@ -117,21 +122,21 @@ for FID in rline_FID_list:
     arcpy.SetProgressorLabel(cY)
 	
     if line_length < 500.00:
-         new_scale = 500.00
-    elif line_length > 500.00 and line_length < 1000.00:
          new_scale = 1000.00
-    elif line_length > 1000.00 and line_length < 1500.00:
+    elif line_length > 500.00 and line_length < 1000.00:
          new_scale = 1500.00
-    elif line_length > 1500.00 and line_length < 2000.00:
+    elif line_length > 1000.00 and line_length < 1500.00:
          new_scale = 2000.00
-    elif line_length > 2000.00 and line_length < 2500.00:
+    elif line_length > 1500.00 and line_length < 2000.00:
          new_scale = 2500.00
-    elif line_length > 2500.00 and line_length < 3000.00:
+    elif line_length > 2000.00 and line_length < 2500.00:
          new_scale = 3000.00
-    elif line_length > 3000.00 and line_length < 3500.00:
+    elif line_length > 2500.00 and line_length < 3000.00:
          new_scale = 3500.00
+    elif line_length > 3000.00 and line_length < 3500.00:
+         new_scale = 4000.00
     else:
-         new_scale = line_length + 50
+         new_scale = line_length + 500
 	
     newExtent = data_frame.extent
     newExtent.XMin = cX - (new_scale/2)
@@ -148,8 +153,11 @@ for FID in rline_FID_list:
 	#Improve naming convention?
     map_output = map_output_folder + str(FID) + "_" + date + ".pdf"
     arcpy.mapping.ExportToPDF(mapdoc, map_output)
-    print "Created Map for " + str(FID + 1)
-        
+    remove_layer = arcpy.mapping.ListLayers(mapdoc, "Target Line", data_frame)[0]
+    arcpy.mapping.RemoveLayer(data_frame, remove_layer)
+    #arcpy.DeleteFeatures_management(lyr_)
+    arcpy.RefreshActiveView()
+    arcpy.RefreshTOC()
+    arcpy.SetProgressorLabel( "Created Map for " + str(FID + 1) )
     #arcpy.Delete_management(data_frame, single_risky_line)
-		
 del mapdoc
