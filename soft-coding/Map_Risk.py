@@ -22,13 +22,15 @@ env.workspace = arcpy.GetParameterAsText(0)
 ##### Local variables: #####
 Risk_shp = arcpy.GetParameterAsText(1) 
 MH = arcpy.GetParameterAsText(2) 
-target_line_symbology = arcpy.GetParameterAsText(3)
+Risk_symbol = arcpy.GetParameterAsText(3)
+MH_symbol = arcpy.GetParameterAsText(4)
+target_line_symbology = arcpy.GetParameterAsText(5)
 #May not use
 target_MH = env.workspace + "\\target_MH.shp"
 map_output_folder = env.workspace + "\\Maps\\"
 high_risk_lines = env.workspace + "\\high_risk_lines.shp"
 risky_line = env.workspace + "\\Target_Line.shp"
-
+Risk_copy = env.workspace + "\\Risk_copy.shp"
 
 risk_list = []
 cur = arcpy.SearchCursor(Risk_shp)
@@ -57,6 +59,16 @@ arcpy.CopyFeatures_management("High_Risk_lyr", high_risk_lines)
 mapdoc = arcpy.mapping.MapDocument("CURRENT")
 data_frame = arcpy.mapping.ListDataFrames(mapdoc, "Layers")[0]
 
+# If the user has input a 
+if Risk_symbol != '':
+    tar_risk_layer = Risk_copy.replace(".shp", ".lyr")
+    addRisklayer = arcpy.mapping.Layer(Risk_shp)
+    arcpy.mapping.UpdateLayer(data_frame, addRisklayer, arcpy.mapping.Layer(Risk_symbol), True)
+    addRisklayer.name = "Line Risk"
+    arcpy.mapping.AddLayer(data_frame, addRisklayer,"TOP")
+else:
+    pass
+	
 arcpy.SetProgressorLabel("Process: Make Layer where the Manholes are " + \
     "adjacent to the high risk sewer lines")
 # Create layer version of manholes
@@ -64,11 +76,14 @@ arcpy.SetProgressorLabel("Process: Make Layer where the Manholes are " + \
 tar_mh_layer = target_MH.replace(".shp", ".lyr")
 tar_mh = arcpy.SelectLayerByLocation_management(MH, "INTERSECT",
     high_risk_lines)
-# Copy the selected Manholes as their own feature 
 tar_mh_feature = arcpy.CopyFeatures_management(tar_mh, target_MH)
-
 MH_layer = arcpy.MakeFeatureLayer_management(tar_mh_feature, tar_mh_layer)
 addMHlayer = arcpy.mapping.Layer(tar_mh_layer)
+
+if MH_symbol != '':
+    arcpy.mapping.UpdateLayer(data_frame, addMHlayer, arcpy.mapping.Layer(MH_symbol), True)
+else:
+    pass
 if addMHlayer.supports("SHOWLABELS") == True: 
     addMHlayer.showLabels = True
     for lblClass in addMHlayer.labelClasses:
@@ -105,14 +120,16 @@ for FID in rline_FID_list:
     addlayer.name = "Target Line"
     arcpy.mapping.AddLayer(data_frame, addlayer,"AUTO_ARRANGE")
     sym_layer = arcpy.mapping.ListLayers(mapdoc, "Target Line", data_frame)[0]	
-    arcpy.mapping.UpdateLayer(data_frame, sym_layer, arcpy.mapping.Layer(target_line_symbology), True)
-    
+    if target_line_symbology != '':
+        arcpy.mapping.UpdateLayer(data_frame, sym_layer, arcpy.mapping.Layer(target_line_symbology), True)
+    else:
+        pass
     legend = arcpy.mapping.ListLayoutElements(mapdoc, "LEGEND_ELEMENT",
         "Legend")[0]
     legend.autoAdd = True    
 
-    arcpy.RefreshActiveView()
-    arcpy.RefreshTOC()
+    #arcpy.RefreshActiveView()
+    #arcpy.RefreshTOC()
 
     fc_cur = arcpy.da.SearchCursor(fc, ['LENGTH', 'SHAPE@X', 'SHAPE@Y'])
     for fc_line in fc_cur:
@@ -157,9 +174,7 @@ for FID in rline_FID_list:
     arcpy.mapping.ExportToPDF(mapdoc, map_output)
     remove_layer = arcpy.mapping.ListLayers(mapdoc, "Target Line", data_frame)[0]
     arcpy.mapping.RemoveLayer(data_frame, remove_layer)
-    #arcpy.DeleteFeatures_management(lyr_)
     arcpy.RefreshActiveView()
     arcpy.RefreshTOC()
     arcpy.SetProgressorLabel( "Created Map for " + str(FID + 1) )
-    #arcpy.Delete_management(data_frame, single_risky_line)
 del mapdoc
